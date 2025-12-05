@@ -1,0 +1,7 @@
+# Brauche das hier um den build prozess zu beschleunigen
+node_modules
+build
+dist
+.git
+npm-debug.log
+.dockerignore
