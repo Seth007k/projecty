@@ -1,4 +1,13 @@
-node_modules
+node_modules/
+build
 .git
+.gitignore
 .dockerignore
 *.log
+vendor/
+composer.lock
+logs/
+.env
+.DS_Store
+.vscode
+.idea
