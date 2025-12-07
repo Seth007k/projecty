@@ -1,7 +1,14 @@
 # Brauche das hier um den build prozess zu beschleunigen
-node_modules
+node_modules/
 build
 dist
 .git
+.gitignore
 npm-debug.log
 .dockerignore
+yarn-error.log
+vendor
+composer.lock
+.vscode
+.DS_Store
+.idea
