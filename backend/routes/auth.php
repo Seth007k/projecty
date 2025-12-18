@@ -67,7 +67,7 @@ try{
 
 }catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['erfolg' => false, 'fehler' => 'Die verbindung zur Datenbank ist fehlgeschlagen!', 'hinweis' => $e->getMessage()]);
+    echo json_encode(['erfolg' => false, 'fehler' => 'Die Verbindung zur Datenbank ist fehlgeschlagen!', 'hinweis' => $e->getMessage()]);
 }
 
 
