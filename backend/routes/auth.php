@@ -15,9 +15,8 @@ $antwortDatenFehler = ['erfolg' => false, 'fehler' => 'Bitte benutzername und pa
 $antwortMethodeFehler = ['erfolg' => false, 'fehler' => 'Methode nicht erlaubt! nur POST oder DELETE erleaubt'];
 $antwortLogout = ['erfolg' => true, 'Verabschiedung' => 'User wude erfolgreich ausgeloggt! Bis zum nächsten mal'];
 
-
-
-switch ($methode) {
+try{
+    switch ($methode) {
     case 'POST':
         if (!is_array($eingabeDaten)) {
             http_response_code(400);
@@ -65,3 +64,10 @@ switch ($methode) {
         echo json_encode($antwortMethodeFehler);
         exit;
 }
+
+}catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['erfolg' => false, 'fehler' => 'Die verbindung zur Datenbank ist fehlgeschlagen!', 'hinweis' => $e->getMessage()]);
+}
+
+
