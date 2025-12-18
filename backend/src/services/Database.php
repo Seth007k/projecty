@@ -7,7 +7,7 @@ function getDB() { //getDB kann aufgerufen werden um eine verbindung zur datenba
         return $mysqli;
     }
 
-    $env = require __DIR__ . '/../config/env.php'; // lädt env.php und speichert in $env ; __DIR__ ist der ordner von database.php 
+    $config = require __DIR__ . '/../../config/env.php'; // lädt env.php und speichert in $env ; __DIR__ ist der ordner von database.php 
 
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT); //Fehleraktivierung zum debuggen
 
