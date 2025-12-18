@@ -2,7 +2,7 @@
 # Starte ein php 8.2 + apache image ( apacha liefert php dateien aus un d kann urls via rewrite umleiten)
 FROM php:8.2-apache
 # installiere benötigte erweiterungen für php, pdo= datenbankzugriff und pdo_mysql= mysql support
-RUN docker-php-ext-install pdo 
+RUN docker-php-ext-install pdo pdo_mysql mysqli
 # apache modul für rewrtie rules
 RUN a2enmod 
 
