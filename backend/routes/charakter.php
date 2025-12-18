@@ -89,7 +89,6 @@ try {
             break;
     }
 } catch (Exception $e) {
-    $antwortDatenbankFehler = ['erfolg' => false, 'fehler' => 'Datenbankfehler', 'fehlerausgabe' => $e->getMessage()];
     http_response_code(500);
-    echo json_encode($antwortDatenbankFehler);
+    echo json_encode(['erfolg' => false, 'fehler' => 'Datenbankfehler', 'fehlerausgabe' => $e->getMessage()]);
 }
