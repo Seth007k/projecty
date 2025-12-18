@@ -1,106 +1,67 @@
 <?php
-require_once __DIR__ . '/../services/Database.php'; // Hier lade ich die database.php
+require_once __DIR__ . '/../src/services/Database.php';
+require_once __DIR__ . '/../src/middleware/AuthMiddleware.php';
 
-session_start(); //startet php session, wird später mit $_SESSION['benutzer_id'] gespeichert
+header('Content-Type: application/json');
 
-header('Content-Type: application/json'); //frontend weiss: json kommt
+$methode = $_SERVER['REQUEST_METHOD'];
+$anwortUserDaten =  file_get_contents('php://input');
+$eingabeDaten = json_decode($anwortUserDaten, true);
+$datenbank = getDB();
+$antwortOk = ['erfolg' => true, 'hinweis' => 'User erfoglreich eingeloggt!'];
+$antwortFehler = ['erfolg' => false, 'fehler' => 'Login fehlgeschlagen!'];
+$antwortFormFehler = ['erfolg' => false, 'fehler' => 'Nur JSON format erlaubt'];
+$antwortDatenFehler = ['erfolg' => false, 'fehler' => 'Bitte benutzername und passwort mit angeben!'];
+$antwortMethodeFehler = ['erfolg' => false, 'fehler' => 'Methode nicht erlaubt! nur POST oder DELETE erleaubt'];
+$antwortLogout = ['erfolg' => true, 'Verabschiedung' => 'User wude erfolgreich ausgeloggt! Bis zum nächsten mal'];
 
-$method = $_SERVER['REQUEST_METHOD']; //holt http methode get, post
 
-if ($method === 'POST') { // auth nur per POST
-    $input = json_decode(file_get_contents('php://input'), true); // liest json aus request body, true als array
 
-    if (!isset($input['action'])) { //aktion check
-        http_response_code(400);
-        echo json_encode(['error' => 'Aktion fehlt']);
+switch ($methode) {
+    case 'POST':
+        if (!is_array($eingabeDaten)) {
+            http_response_code(400);
+            echo json_encode($antwortFormFehler);
+            exit;
+        }
+        if (empty($eingabeDaten['benutzername']) || empty($eingabeDaten['passwort'])) {
+            http_response_code(406);
+            echo json_encode($antwortDatenFehler);
+            exit;
+        }
+
+        $benutzername = $eingabeDaten['benutzername'];
+        $benutzerpasswort = $eingabeDaten['passwort'];
+
+        $sqlAnweisung = $datenbank->prepare("SELECT id, passwort FROM spieler WHERE benutzername = ?");
+        $sqlAnweisung->bind_param("s", $benutzername);
+        $sqlAnweisung->execute();
+        $ergebnisUser = $sqlAnweisung->get_result();
+        $aktuellerUser = $ergebnisUser->fetch_assoc();
+
+        if (!$aktuellerUser) {
+            http_response_code(401);
+            echo json_encode($antwortFehler);
+            exit;
+        } elseif (!password_verify($benutzerpasswort, $aktuellerUser['passwort'])) {
+            http_response_code(401);
+            echo json_encode($antwortFehler);
+            exit;
+        }
+
+        $_SESSION['benutzer_id'] = $aktuellerUser['id'];
+
+        echo json_encode($antwortOk);
+        break;
+    case 'DELETE':
+        requireAuth();
+        session_unset();
+        session_destroy();
+
+        echo json_encode($antwortLogout);
+        break;
+    default:
+        http_response_code(405);
+        echo json_encode($antwortMethodeFehler);
         exit;
-    }
-
-    if ($input['action'] === 'register') { // mini rputer ohne framework
-        register($input);
-    }
-
-    if ($input['action'] == 'login') {
-        login($input);
-    }
-
-    http_response_code(400);
-    echo json_encode(['error' => 'Unbekannte Aktion']);
-    exit;
 }
-
-http_response_code(405);
-echo json_encode(['error' => ' Nur POST erlaubt']);
-exit;
-
-function register(array $data) //register funktion, $data kommt aus dem json-body
-{
-    if (!isset($data['benutzername'], $data['passwort'])) { //validierung: eingaben werden auf richtigkeit geprüft
-        http_response_code(400);
-        echo json_encode(['error' => 'Username oder Passwort fehlt']);
-        exit;
-    }
-
-    $db = getDB(); //db verbindung holen
-
-    $stmt = $db->prepare( //Benuter existiert? prepare statement schütz vor sql injection
-        "SELECT id FROM spieler WHERE benutzername =?"
-    );
-
-    $stmt->bind_param("s", $data['benutzername']); // s= string , bindet ? an username
-
-    $stmt->execute(); //query ausführen
-    $stmt->store_result(); // ergebins zwischenspeichern
-
-    if ($stmt->num_rows > 0) { // wenn es bereits einen eintrag gibt: benutzer existiert -> registrierung abbrechen
-        http_response_code(409);
-        echo json_encode(['error' => 'Benutzer existiert bereits']);
-        exit;
-    }
-
-    $hash = password_hash($data['passwort'], PASSWORD_DEFAULT); // passwort hashen (sicherheit)
-
-    $stmt = $db->prepare( //user speichern 
-        "INSERT INTO spieler (benutzername, passwort) VALUES (?,?)"
-    );
-    $stmt->bind_param("ss", $data['benutzername'], $hash); //ss= weis trings; speichert benutzer und hash
-    $stmt->execute();
-
-    echo json_encode(['Erfolg' => true]); // FRONTEND WEIß REGISTRIERUNG OK
-    exit;
-}
-
-function login(array $data) { // leogin eines bestehenden benuters
-    if(!isset($data['benutzername'], $data['passwort'])) { //prüfung auf eingabe
-        http_response_code(400);
-        echo json_encode(['error' => 'Benutzername oder passwort fehlt']);
-        exit;
-    }
-
-    $db = getDB(); // datenbank holen
-
-    $stmt = $db->prepare( //user aus datenbank holen
-        "SELECT id, passwort FROM spieler WHERE benutzername = ?"
-    );
-    $stmt->bind_param("s", $data['benutzername']);
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-    $benutzer = $result->fetch_assoc(); // in $benutzer wird ein array aus id, password, etc gepseichert  
-
-    if (!$benutzer || !password_verify($data['passwort'], $benutzer['passwort'])) { //fehlerfall: benutzer existiert nicht oder passwort falsch; password_verify prüft ob pw korrekt
-        http_response_code(401);
-        echo json_encode(['error' => 'Login fehlgeschlagen']);
-        exit;
-    }
-
-    $_SESSION['benutzer_id'] = $benutzer['id']; // session wird gesetzt user eingelogtt, alle weiteren request erkennen den nutzer
-
-    echo json_encode([ // frontend bekommt json
-        'erfolg' => true,
-        'benutzer_id' => $benutzer['id']
-    ]);
-    exit;
-}
-
-

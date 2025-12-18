@@ -1,6 +1,7 @@
 <?php
-
-session_start(); //benötige ich für $_SESSION
+ if(session_status() === PHP_SESSION_NONE) { // prfung ob es bereits eine session gibt
+    session_start();
+ }
 
 function requireAuth(){
     if (!isset($_SESSION['benutzer_id'])) {// wenn benutzer existiert -> eingeloggt wenn nicht  nicht eingeloggt
