@@ -14,6 +14,7 @@ $datenbank = getDB();
 $antwortUserDaten = file_get_contents('php://input');
 $eingabeDaten = json_decode($antwortUserDaten, true);
 
+
 $antwortDatenFehler = ['erfolg' => false, 'fehler' => 'Bite alle benötigten Daten ausfüllen!'];
 $antwortMethodeFehler = ['erfolg' => false, 'fehler' => 'Methode nicht erlaubt!'];
 
@@ -21,10 +22,10 @@ $antwortMethodeFehler = ['erfolg' => false, 'fehler' => 'Methode nicht erlaubt!'
 try {
     switch ($methode) {
         case 'GET':
-            $sqlAnweisung = $datenbank->prepare("SELECT id, name, level, leben, angriff, verteidigung FROM charakter WHERE spieler_id =?");
-            $sqlAnweisung->bind_param("i", $spieler_id);
-            $sqlAnweisung->execute();
-            $ergebnisCharakter = $sqlAnweisung->get_result();
+            $sqlAnweisungCharakteranzeigen = $datenbank->prepare("SELECT id, name, level, leben, angriff, verteidigung FROM charakter WHERE spieler_id =?");
+            $sqlAnweisungCharakteranzeigen->bind_param("i", $spieler_id);
+            $sqlAnweisungCharakteranzeigen->execute();
+            $ergebnisCharakter = $sqlAnweisungCharakteranzeigen->get_result();
 
             $charaktere = [];
             while ($row = $ergebnisCharakter->fetch_assoc()) {
@@ -35,6 +36,7 @@ try {
             echo json_encode($antwortZeigecharakter);
             break;
         case 'POST':
+            
             if (empty($eingabeDaten['name'])) {
                 http_response_code(400);
                 echo json_encode($antwortDatenFehler);
@@ -42,44 +44,50 @@ try {
             }
 
             $level = 1;
-            $leben = 100;
-            $angriff = 15;
+            $leben = 2050;
+            $angriff = 250;
             $verteidigung = 5;
 
-            $sqlAnweisung = $datenbank->prepare("INSERT INTO charakter (spieler_id, name, level, leben, angriff, verteidigung) VALUES (?,?,?,?,?,?)");
-            $sqlAnweisung->bind_param("isiiii", $spieler_id, $eingabeDaten['name'], $level, $leben, $angriff, $verteidigung);
-            $sqlAnweisung->execute();
+            $sqlAnweisungCharakterErstellen = $datenbank->prepare("INSERT INTO charakter (spieler_id, name, level, leben, angriff, verteidigung) VALUES (?,?,?,?,?,?)");
+            $sqlAnweisungCharakterErstellen->bind_param("isiiii", $spieler_id, $eingabeDaten['name'], $level, $leben, $angriff, $verteidigung);
+            $sqlAnweisungCharakterErstellen->execute();
 
-            $neueCharakterId = $sqlAnweisung->insert_id;
+            $neueCharakterId = $sqlAnweisungCharakterErstellen->insert_id;
             $antwortCharakterErstellt = ['erfolg' => true, 'hinweis' => 'Der Charakter wurde erfolgreich erstellt!', 'id' => $neueCharakterId];
             echo json_encode($antwortCharakterErstellt);
             break;
         case 'PUT':
+            $charakter_id = $eingabeDaten['id'] ?? null;
             if (!isset($eingabeDaten['id'], $eingabeDaten['name'])) {
                 http_response_code(400);
                 echo json_encode($antwortDatenFehler);
                 exit;
             }
 
-            $sqlAnweisung = $datenbank->prepare("UPDATE charakter SET name = ?, level = ?, leben = ?, angriff = ?, verteidigung = ? WHERE id = ? AND spieler_id = ?");
-            $sqlAnweisung->bind_param("siiiiii", $eingabeDaten['name'], $eingabeDaten['level'], $eingabeDaten['leben'], $eingabeDaten['angriff'], $eingabeDaten['verteidigung'], $eingabeDaten['id'], $spieler_id);
-            $sqlAnweisung->execute();
+            $sqlAnweisungCharakterAktualisieren = $datenbank->prepare("UPDATE charakter SET name = ?, level = ?, leben = ?, angriff = ?, verteidigung = ? WHERE id = ? AND spieler_id = ?");
+            $sqlAnweisungCharakterAktualisieren->bind_param("siiiiii", $eingabeDaten['name'], $eingabeDaten['level'], $eingabeDaten['leben'], $eingabeDaten['angriff'], $eingabeDaten['verteidigung'], $charakter_id, $spieler_id);
+            $sqlAnweisungCharakterAktualisieren->execute();
 
-            $antwortcharakterAktualisiert = ['erfolg' => $sqlAnweisung->affected_rows > 0, 'hinweis:' => $sqlAnweisung->affected_rows > 0 ? 'Charakter wurde erfolgreich aktualsisiert und gespeichert' : 'Keine Änderungen durchgeführt, da keine Änderung gefunden'];
+            $antwortcharakterAktualisiert = ['erfolg' => $sqlAnweisungCharakterAktualisieren->affected_rows > 0, 'hinweis:' => $sqlAnweisungCharakterAktualisieren->affected_rows > 0 ? 'Charakter wurde erfolgreich aktualsisiert und gespeichert' : 'Keine Änderungen durchgeführt, da keine Änderung gefunden'];
             echo json_encode($antwortcharakterAktualisiert);
             break;
         case 'DELETE':
-            if (empty($eingabeDaten['id'])) {
+            $charakter_id = $eingabeDaten['id'] ?? null;
+            if (!$charakter_id) {
                 http_response_code(400);
                 echo json_encode($antwortDatenFehler);
                 exit;
             }
 
-            $sqlAnweisung = $datenbank->prepare("DELETE FROM charakter WHERE id=? AND spieler_id=?");
-            $sqlAnweisung->bind_param("ii", $eingabeDaten['id'], $spieler_id);
-            $sqlAnweisung->execute();
+            $sqlAnweisungSpieleDesCharaktersLöschen = $datenbank->prepare("DELETE FROM spiele WHERE charakter_id = ?");
+            $sqlAnweisungSpieleDesCharaktersLöschen->bind_param("i", $charakter_id);
+            $sqlAnweisungSpieleDesCharaktersLöschen->execute();
 
-            $löschungErfolg = $sqlAnweisung->affected_rows > 0;
+            $sqlAnweisungCharakterLöschen = $datenbank->prepare("DELETE FROM charakter WHERE id=? AND spieler_id=?");
+            $sqlAnweisungCharakterLöschen->bind_param("ii", $charakter_id, $spieler_id);
+            $sqlAnweisungCharakterLöschen->execute();
+
+            $löschungErfolg = $sqlAnweisungCharakterLöschen->affected_rows > 0;
             $antwortCharakterGelöscht = ['erfolg' => $löschungErfolg, 'hinweis' => $löschungErfolg ? 'Charakter wurde erfolgreich gelöscht' : 'Charakter wurde nicht gelöscht, da er nicht mehr existiert'];
             echo json_encode($antwortCharakterGelöscht);
             break;
