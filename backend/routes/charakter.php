@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../src/services/Database.php';
-require_once __DIR__ . '/../src/middleware/AuthMiddleware.php';
+require_once __DIR__ . '/../src/middleware/AuthMiddleWare.php';
 
 
 header('Content-Type: application/json');
@@ -44,7 +44,7 @@ try {
             }
 
             $level = 1;
-            $leben = 2050;
+            $leben = 1000;
             $angriff = 250;
             $verteidigung = 5;
 
@@ -55,21 +55,6 @@ try {
             $neueCharakterId = $sqlAnweisungCharakterErstellen->insert_id;
             $antwortCharakterErstellt = ['erfolg' => true, 'hinweis' => 'Der Charakter wurde erfolgreich erstellt!', 'id' => $neueCharakterId];
             echo json_encode($antwortCharakterErstellt);
-            break;
-        case 'PUT':
-            $charakter_id = $eingabeDaten['id'] ?? null;
-            if (!isset($eingabeDaten['id'], $eingabeDaten['name'])) {
-                http_response_code(400);
-                echo json_encode($antwortDatenFehler);
-                exit;
-            }
-
-            $sqlAnweisungCharakterAktualisieren = $datenbank->prepare("UPDATE charakter SET name = ?, level = ?, leben = ?, angriff = ?, verteidigung = ? WHERE id = ? AND spieler_id = ?");
-            $sqlAnweisungCharakterAktualisieren->bind_param("siiiiii", $eingabeDaten['name'], $eingabeDaten['level'], $eingabeDaten['leben'], $eingabeDaten['angriff'], $eingabeDaten['verteidigung'], $charakter_id, $spieler_id);
-            $sqlAnweisungCharakterAktualisieren->execute();
-
-            $antwortcharakterAktualisiert = ['erfolg' => $sqlAnweisungCharakterAktualisieren->affected_rows > 0, 'hinweis:' => $sqlAnweisungCharakterAktualisieren->affected_rows > 0 ? 'Charakter wurde erfolgreich aktualsisiert und gespeichert' : 'Keine Änderungen durchgeführt, da keine Änderung gefunden'];
-            echo json_encode($antwortcharakterAktualisiert);
             break;
         case 'DELETE':
             $charakter_id = $eingabeDaten['id'] ?? null;

@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../src/services/Database.php';
-require_once __DIR__ . '/../src/middleware/AuthMiddleware.php';
+require_once __DIR__ . '/../src/middleware/AuthMiddleWare.php';
 
 header('Content-Type: application/json');
 requireAuth();
@@ -29,16 +29,16 @@ function erstelleGegner($runde, $schwierigkeit)
         if ($runde == 4) {
             $gegnerListe[] = [
                 'name' => 'Boss - Faulheit',
-                'leben' => 150 * $schwierigkeit,
+                'leben' => 1000 * $schwierigkeit,
                 'angriff' => 15 * $schwierigkeit,
                 'verteidigung' => 5 * $schwierigkeit
             ];
         } else {
             $gegnerListe[] = [
                 'name' => 'Goblin der Pflichten',
-                'leben' => 100 * $schwierigkeit,
-                'angriff' => 10 * $schwierigkeit,
-                'verteidigung' => 5 * $schwierigkeit
+                'leben' => 200 * $schwierigkeit,
+                'angriff' => 25 * $schwierigkeit,
+                'verteidigung' => 10 * $schwierigkeit
             ];
         }
     }
@@ -134,6 +134,11 @@ try {
             if (!$ergebnisAktuellesSpiel) {
                 http_response_code(404);
                 $antwort = $antwortSpielNichtGefunden;
+                $antwort['debug'] = [
+                        'charakter_id' => $charakter_id,
+                        'spieler_id' => $spieler_id,
+                        'ergebnisAktuellesSpiel' => $ergebnisAktuellesSpiel
+                    ];
                 break;
             }
 

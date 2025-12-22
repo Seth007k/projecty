@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../src/services/Database.php';
-require_once __DIR__ . '/../src/middleware/AuthMiddleware.php';
+require_once __DIR__ . '/../src/middleware/AuthMiddleWare.php';
 
 header('Content-Type: application/json');
 
@@ -13,7 +13,7 @@ $antwortFehler = ['erfolg' => false, 'fehler' => 'Login fehlgeschlagen!'];
 $antwortFormFehler = ['erfolg' => false, 'fehler' => 'Nur JSON format erlaubt'];
 $antwortDatenFehler = ['erfolg' => false, 'fehler' => 'Bitte benutzername und passwort mit angeben!'];
 $antwortMethodeFehler = ['erfolg' => false, 'fehler' => 'Methode nicht erlaubt! nur POST oder DELETE erleaubt'];
-$antwortLogout = ['erfolg' => true, 'Verabschiedung' => 'User wude erfolgreich ausgeloggt! Bis zum nächsten mal'];
+$antwortLogout = ['erfolg' => true, 'erfolg' => 'User wude erfolgreich ausgeloggt! Bis zum nächsten mal'];
 
 try{
     switch ($methode) {

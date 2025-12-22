@@ -20,7 +20,7 @@ function getDB()
             $config['DB_NAME'],
         );
         $verbindung->set_charset('utf8mb4');
-    } catch (mysqli_sql_exception $e) {
+    } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['erfolg' => false, 'fehler' => 'Die Verbindung zur Datenbank ist fehlgeschlagen!', 'hinweis' => $e->getMessage()]);
         exit;
