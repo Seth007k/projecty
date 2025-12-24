@@ -8,66 +8,70 @@ $methode = $_SERVER['REQUEST_METHOD'];
 $anwortUserDaten =  file_get_contents('php://input');
 $eingabeDaten = json_decode($anwortUserDaten, true);
 $datenbank = getDB();
-$antwortOk = ['erfolg' => true, 'hinweis' => 'User erfoglreich eingeloggt!'];
-$antwortFehler = ['erfolg' => false, 'fehler' => 'Login fehlgeschlagen!'];
-$antwortFormFehler = ['erfolg' => false, 'fehler' => 'Nur JSON format erlaubt'];
-$antwortDatenFehler = ['erfolg' => false, 'fehler' => 'Bitte benutzername und passwort mit angeben!'];
-$antwortMethodeFehler = ['erfolg' => false, 'fehler' => 'Methode nicht erlaubt! nur POST oder DELETE erleaubt'];
-$antwortLogout = ['erfolg' => true, 'erfolg' => 'User wude erfolgreich ausgeloggt! Bis zum nächsten mal'];
 
-try{
-    switch ($methode) {
-    case 'POST':
-        if (!is_array($eingabeDaten)) {
-            http_response_code(400);
-            echo json_encode($antwortFormFehler);
-            exit;
-        }
-        if (empty($eingabeDaten['benutzername']) || empty($eingabeDaten['passwort'])) {
-            http_response_code(406);
-            echo json_encode($antwortDatenFehler);
-            exit;
-        }
-
-        $benutzername = $eingabeDaten['benutzername'];
-        $benutzerpasswort = $eingabeDaten['passwort'];
-
-        $sqlAnweisung = $datenbank->prepare("SELECT id, passwort FROM spieler WHERE benutzername = ?");
-        $sqlAnweisung->bind_param("s", $benutzername);
-        $sqlAnweisung->execute();
-        $ergebnisUser = $sqlAnweisung->get_result();
-        $aktuellerUser = $ergebnisUser->fetch_assoc();
-
-        if (!$aktuellerUser) {
-            http_response_code(401);
-            echo json_encode($antwortFehler);
-            exit;
-        } elseif (!password_verify($benutzerpasswort, $aktuellerUser['passwort'])) {
-            http_response_code(401);
-            echo json_encode($antwortFehler);
-            exit;
-        }
-
-        $_SESSION['benutzer_id'] = $aktuellerUser['id'];
-
-        echo json_encode($antwortOk);
-        break;
-    case 'DELETE':
-        requireAuth();
-        session_unset();
-        session_destroy();
-
-        echo json_encode($antwortLogout);
-        break;
-    default:
-        http_response_code(405);
-        echo json_encode($antwortMethodeFehler);
+function loginDatenVorhanden($eingabeDaten)
+{
+    if (empty($eingabeDaten['benutzername']) || empty($eingabeDaten['passwort'])) {
+        http_response_code(406);
+        $antwortDatenFehler = ['erfolg' => false, 'fehler' => 'Bitte benutzername und passwort mit angeben!'];
+        echo json_encode($antwortDatenFehler);
         exit;
+    }
 }
 
-}catch (Exception $e) {
+function ladeBenutzer($datenbank, $eingabeDaten)
+{
+    $benutzername = $eingabeDaten['benutzername'];
+
+    $sqlAnweisung = $datenbank->prepare("SELECT id, passwort FROM spieler WHERE benutzername = ?");
+    $sqlAnweisung->bind_param("s", $benutzername);
+    $sqlAnweisung->execute();
+    $ergebnisUser = $sqlAnweisung->get_result();
+    $aktuellerUser = $ergebnisUser->fetch_assoc();
+
+    return $aktuellerUser;
+}
+
+function pruefePasswort($aktuellerUser, $eingabeDaten)
+{
+    $antwortFehler = ['erfolg' => false, 'fehler' => 'Login fehlgeschlagen!'];
+    $benutzerpasswort = $eingabeDaten['passwort'];
+    if (!$aktuellerUser) {
+        http_response_code(401);
+        echo json_encode($antwortFehler);
+        exit;
+    } elseif (!password_verify($benutzerpasswort, $aktuellerUser['passwort'])) {
+        http_response_code(401);
+        echo json_encode($antwortFehler);
+        exit;
+    }
+}
+
+try {
+    switch ($methode) {
+        case 'POST':
+            loginDatenVorhanden($eingabeDaten);
+            $aktuellerUser = ladeBenutzer($datenbank, $eingabeDaten);
+            pruefePasswort($aktuellerUser, $eingabeDaten);
+
+            $_SESSION['benutzer_id'] = $aktuellerUser['id'];
+            $antwortOk = ['erfolg' => true, 'hinweis' => 'User erfoglreich eingeloggt!'];
+            echo json_encode($antwortOk);
+            break;
+        case 'DELETE':
+            requireAuth();
+            session_unset();
+            session_destroy();
+            $antwortLogout = ['erfolg' => true, 'hinweis' => 'User wude erfolgreich ausgeloggt! Bis zum nächsten mal'];
+            echo json_encode($antwortLogout);
+            break;
+        default:
+            http_response_code(405);
+            $antwortMethodeFehler = ['erfolg' => false, 'fehler' => 'Methode nicht erlaubt! nur POST oder DELETE erleaubt'];
+            echo json_encode($antwortMethodeFehler);
+            exit;
+    }
+} catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['erfolg' => false, 'fehler' => 'Die Verbindung zur Datenbank ist fehlgeschlagen!', 'hinweis' => $e->getMessage()]);
 }
-
-

@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../src/services/Database.php';
 require_once __DIR__ . '/../src/middleware/AuthMiddleWare.php';
-
+require_once __DIR__ . '/../src/services/CharakterService.php';
 
 header('Content-Type: application/json');
 
@@ -15,65 +15,37 @@ $antwortUserDaten = file_get_contents('php://input');
 $eingabeDaten = json_decode($antwortUserDaten, true);
 
 
-$antwortDatenFehler = ['erfolg' => false, 'fehler' => 'Bite alle benötigten Daten ausfüllen!'];
 $antwortMethodeFehler = ['erfolg' => false, 'fehler' => 'Methode nicht erlaubt!'];
 
 
 try {
     switch ($methode) {
         case 'GET':
-            $sqlAnweisungCharakteranzeigen = $datenbank->prepare("SELECT id, name, level, leben, angriff, verteidigung FROM charakter WHERE spieler_id =?");
-            $sqlAnweisungCharakteranzeigen->bind_param("i", $spieler_id);
-            $sqlAnweisungCharakteranzeigen->execute();
-            $ergebnisCharakter = $sqlAnweisungCharakteranzeigen->get_result();
-
-            $charaktere = [];
-            while ($row = $ergebnisCharakter->fetch_assoc()) {
-                $charaktere[] = $row;
-            }
-
-            $antwortZeigecharakter = ['erfolg' => true, 'charakterauswahl' => $charaktere];
-            echo json_encode($antwortZeigecharakter);
+            $charakter_id = isset($_GET['id']) ? $_GET['id'] : null;
+            $charaktere = charakterLaden($datenbank, $spieler_id, $charakter_id);
+            $antwortCharakterAuswahl = ['erfolg' => true, 'charakterauswahl' => $charaktere];
+            echo json_encode($antwortCharakterAuswahl);
             break;
         case 'POST':
-            
-            if (empty($eingabeDaten['name'])) {
+            if(!pruefeCharakterName($eingabeDaten)) {
                 http_response_code(400);
-                echo json_encode($antwortDatenFehler);
+                echo json_encode((['erfolg' => false, 'fehler' => 'Bitte gib deinem Charakter ienen Namen!']));
                 exit;
             }
-
-            $level = 1;
-            $leben = 1000;
-            $angriff = 250;
-            $verteidigung = 5;
-
-            $sqlAnweisungCharakterErstellen = $datenbank->prepare("INSERT INTO charakter (spieler_id, name, level, leben, angriff, verteidigung) VALUES (?,?,?,?,?,?)");
-            $sqlAnweisungCharakterErstellen->bind_param("isiiii", $spieler_id, $eingabeDaten['name'], $level, $leben, $angriff, $verteidigung);
-            $sqlAnweisungCharakterErstellen->execute();
-
-            $neueCharakterId = $sqlAnweisungCharakterErstellen->insert_id;
+            $neueCharakterId = charakterErstellen($datenbank, $spieler_id, $eingabeDaten);
             $antwortCharakterErstellt = ['erfolg' => true, 'hinweis' => 'Der Charakter wurde erfolgreich erstellt!', 'id' => $neueCharakterId];
             echo json_encode($antwortCharakterErstellt);
             break;
         case 'DELETE':
-            $charakter_id = $eingabeDaten['id'] ?? null;
+            $charakter_id = exisitiertCharakter($eingabeDaten);
             if (!$charakter_id) {
                 http_response_code(400);
+                $antwortDatenFehler = ['erfolg' => false, 'fehler' => 'Bitte name und id ausfüllen'];
                 echo json_encode($antwortDatenFehler);
                 exit;
             }
-
-            $sqlAnweisungSpieleDesCharaktersLöschen = $datenbank->prepare("DELETE FROM spiele WHERE charakter_id = ?");
-            $sqlAnweisungSpieleDesCharaktersLöschen->bind_param("i", $charakter_id);
-            $sqlAnweisungSpieleDesCharaktersLöschen->execute();
-
-            $sqlAnweisungCharakterLöschen = $datenbank->prepare("DELETE FROM charakter WHERE id=? AND spieler_id=?");
-            $sqlAnweisungCharakterLöschen->bind_param("ii", $charakter_id, $spieler_id);
-            $sqlAnweisungCharakterLöschen->execute();
-
-            $löschungErfolg = $sqlAnweisungCharakterLöschen->affected_rows > 0;
-            $antwortCharakterGelöscht = ['erfolg' => $löschungErfolg, 'hinweis' => $löschungErfolg ? 'Charakter wurde erfolgreich gelöscht' : 'Charakter wurde nicht gelöscht, da er nicht mehr existiert'];
+            $charakterGelöscht = charakterLöschen($datenbank, $spieler_id, $charakter_id);
+            $antwortCharakterGelöscht = ['erfolg' => $charakterGelöscht, 'hinweis' => $charakterGelöscht ? 'Charakter wurde erfolgreich gelöscht' : 'Charakter wurde nicht gelöscht, da er nicht mehr existiert'];
             echo json_encode($antwortCharakterGelöscht);
             break;
         default:
