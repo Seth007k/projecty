@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../src/services/Database.php';
 require_once __DIR__ . '/../src/middleware/AuthMiddleWare.php';
+require_once __DIR__ . '/../src/services/AuthService.php';
 
 header('Content-Type: application/json');
 
@@ -9,50 +10,24 @@ $anwortUserDaten =  file_get_contents('php://input');
 $eingabeDaten = json_decode($anwortUserDaten, true);
 $datenbank = getDB();
 
-function loginDatenVorhanden($eingabeDaten)
-{
-    if (empty($eingabeDaten['benutzername']) || empty($eingabeDaten['passwort'])) {
-        http_response_code(406);
-        $antwortDatenFehler = ['erfolg' => false, 'fehler' => 'Bitte benutzername und passwort mit angeben!'];
-        echo json_encode($antwortDatenFehler);
-        exit;
-    }
-}
-
-function ladeBenutzer($datenbank, $eingabeDaten)
-{
-    $benutzername = $eingabeDaten['benutzername'];
-
-    $sqlAnweisung = $datenbank->prepare("SELECT id, passwort FROM spieler WHERE benutzername = ?");
-    $sqlAnweisung->bind_param("s", $benutzername);
-    $sqlAnweisung->execute();
-    $ergebnisUser = $sqlAnweisung->get_result();
-    $aktuellerUser = $ergebnisUser->fetch_assoc();
-
-    return $aktuellerUser;
-}
-
-function pruefePasswort($aktuellerUser, $eingabeDaten)
-{
-    $antwortFehler = ['erfolg' => false, 'fehler' => 'Login fehlgeschlagen!'];
-    $benutzerpasswort = $eingabeDaten['passwort'];
-    if (!$aktuellerUser) {
-        http_response_code(401);
-        echo json_encode($antwortFehler);
-        exit;
-    } elseif (!password_verify($benutzerpasswort, $aktuellerUser['passwort'])) {
-        http_response_code(401);
-        echo json_encode($antwortFehler);
-        exit;
-    }
-}
 
 try {
     switch ($methode) {
         case 'POST':
-            loginDatenVorhanden($eingabeDaten);
-            $aktuellerUser = ladeBenutzer($datenbank, $eingabeDaten);
-            pruefePasswort($aktuellerUser, $eingabeDaten);
+            $action = $eingabeDaten['action'] ?? 'login';
+            if ($action === 'registrieren') {
+                loginDatenVorhanden($eingabeDaten['benutzername'], $eingabeDaten['passwort']);
+                $benutzer_id = registriereBenutzer($datenbank, $eingabeDaten);
+                $_SESSION['benutzer_id'] = $benutzer_id;
+                
+                http_response_code(201);
+                echo json_encode(['erfolg' => true, 'hinweis' => 'Registrierung erfolgreich abgeschlossen! Willkommen', 'benutzer_id' => $benutzer_id]);
+                break;
+            }
+
+            loginDatenVorhanden($eingabeDaten['benutzername'], $eingabeDaten['passwort']);
+            $aktuellerUser = ladeBenutzer($datenbank, $eingabeDaten['benutzername']);
+            pruefePasswort($aktuellerUser, $eingabeDaten['passwort']);
 
             $_SESSION['benutzer_id'] = $aktuellerUser['id'];
             $antwortOk = ['erfolg' => true, 'hinweis' => 'User erfoglreich eingeloggt!'];

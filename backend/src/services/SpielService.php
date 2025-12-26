@@ -6,7 +6,7 @@ function ladeSpielUndCharakter($datenbank, $spieler_id, $charakter_id)
 {
     $aktuellesSpiel = ladeAltenSpielstand($datenbank, $spieler_id, $charakter_id);
 
-    if (!$aktuellesSpiel) {
+    if (isset($aktuellesSpiel['error'])) {
         $aktuellesSpiel = erstelleNeuesSpiel($datenbank, $spieler_id, $charakter_id);
         if (!$aktuellesSpiel) {
             return ['error' => 'Spiel konnte nicht erstellt werden!'];

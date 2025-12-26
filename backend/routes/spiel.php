@@ -9,7 +9,7 @@ requireAuth();
 
 $methode = $_SERVER['REQUEST_METHOD'];
 $spieler_id = $_SESSION['benutzer_id'];
-$eingabedaten = json_decode(file_get_contents('php://input'), true);
+$eingabedaten = json_decode(file_get_contents('php://input') ?? '{}', true);
 
 $antwortDatenFehler = ['erfolg' => false, 'fehler' => 'Bitte alle benötigten Daten ausfüllen!'];
 $antwortMethodenFehler = ['erfolg' => false, 'fehler' => 'Methode nicht erlaubt!'];
@@ -44,10 +44,14 @@ try {
                 $antwort = $antwortSpielNichtGefunden;
                 break;
             }
+            $aktuellesSpiel = $geladeneDaten['spiel'];
+
+            $gegnerListe = isset($aktuellesSpiel['gegner_status']) && $aktuellesSpiel['gegner_status'] !== null ? json_decode($aktuellesSpiel['gegner_status'], true) : [];
             $antwort = $antwortErfolg;
-            $antwort['spiel'] = $geladeneDaten['spiel'];
-            $antwort['gegner'] = json_decode($geladeneDaten['spiel']['gegner_status'], true);
-            $antwort['charakter'] = $geladeneDaten['charakter'];
+            $antwort['spiel'] = $aktuellesSpiel;
+
+            $antwort['gegner'] = $gegnerListe;
+
             break;
         case 'POST':
             $charakter_id = $eingabedaten['charakter_id'] ?? null;
@@ -67,7 +71,7 @@ try {
 
             $ergebnisAktuellesSpiel = $geladeneDaten['spiel'];
             $ergebnisAktuellerCharakter = $geladeneDaten['charakter'];
-            $gegnerListe = json_decode($ergebnisAktuellesSpiel['gegner_status'], true);
+            $gegnerListe = isset($ergebnisAktuellesSpiel['gegner_status']) ? json_decode($ergebnisAktuellesSpiel['gegner_status'], true) : [];
 
             switch ($benutzerAktion) {
                 case 'angriff':
@@ -183,6 +187,5 @@ try {
 } catch (Exception $e) {
     http_response_code(500);
     $antwort = $antwortServerFehler;
-    $antwort['debug'] = $e->getMessage();
 }
 echo json_encode($antwort);
