@@ -16,21 +16,15 @@ try {
         case 'POST':
             $action = $eingabeDaten['action'] ?? 'login';
             if ($action === 'registrieren') {
-                loginDatenVorhanden($eingabeDaten['benutzername'], $eingabeDaten['passwort']);
-                $benutzer_id = registriereBenutzer($datenbank, $eingabeDaten);
-                $_SESSION['benutzer_id'] = $benutzer_id;
-                
+                $benutzer_id = registriereUndEinloggen($datenbank, $eingabeDaten);
                 http_response_code(201);
                 echo json_encode(['erfolg' => true, 'hinweis' => 'Registrierung erfolgreich abgeschlossen! Willkommen', 'benutzer_id' => $benutzer_id]);
                 break;
             }
 
-            loginDatenVorhanden($eingabeDaten['benutzername'], $eingabeDaten['passwort']);
-            $aktuellerUser = ladeBenutzer($datenbank, $eingabeDaten['benutzername']);
-            pruefePasswort($aktuellerUser, $eingabeDaten['passwort']);
-
-            $_SESSION['benutzer_id'] = $aktuellerUser['id'];
-            $antwortOk = ['erfolg' => true, 'hinweis' => 'User erfoglreich eingeloggt!'];
+            $benutzer_id = loginBenutzer($datenbank, $eingabeDaten);
+       
+            $antwortOk = ['erfolg' => true, 'hinweis' => 'User erfoglreich eingeloggt!', 'benutzer_id' => $benutzer_id];
             echo json_encode($antwortOk);
             break;
         case 'DELETE':
@@ -48,5 +42,5 @@ try {
     }
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['erfolg' => false, 'fehler' => 'Die Verbindung zur Datenbank ist fehlgeschlagen!', 'hinweis' => $e->getMessage()]);
+    echo json_encode(['erfolg' => false, 'fehler' => $e->getMessage()]);
 }

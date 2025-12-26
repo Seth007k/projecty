@@ -62,3 +62,23 @@ function loginDatenVorhanden($benutzername, $passwort)
         throw new Exception('Es wird ein benutzername und Passwort benötigt!');
     }
 }
+
+function registriereUndEinloggen($datenbank, $eingabeDaten):int {
+    loginDatenVorhanden($eingabeDaten['benutzername'], $eingabeDaten['passwort']);
+
+    $benutzer_id = registriereBenutzer($datenbank, $eingabeDaten);
+
+    $_SESSION['benutzer_id'] = $benutzer_id;
+
+    return $benutzer_id;
+}
+
+function loginBenutzer($datenbank, $eingabeDaten):int {
+    loginDatenVorhanden($eingabeDaten['benutzername'], $eingabeDaten['passwort']);
+
+    $aktuellerUser = ladeBenutzer($datenbank, $eingabeDaten['benutzername']);
+    pruefePasswort($aktuellerUser, $eingabeDaten['passwort']);
+
+    $_SESSION['benutzer_id'] = $aktuellerUser['id'];
+    return $aktuellerUser['id'];
+}
