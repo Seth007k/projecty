@@ -1,11 +1,16 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Startbildschirm from './pages/Startbildschirm';
 
-function App(){
-    return (
-        <div>
-            <h1>Project Y - Browsergame</h1>
-            <p> Willkommen zum frontend, hier entsteht bald eine grafik</p>
-        </div>
+function App() {
+    return ( 
+        <Router>
+            <Routes>
+                <Route path="/" element={<Startbildschirm />} />
+                {/* Hier kommt nachher die login router rein */}
+            </Routes>
+        </Router>
     )
 }
+
 export default App;
