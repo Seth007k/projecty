@@ -1,0 +1,52 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.menue_hintergrund_container {
+    height: 100vh;
+    width: 100vw;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.menue_main {
+    text-align: center;
+    padding: 40px 60px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.1);
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+
+.menue_button {
+    display: inline-block;
+    margin: 15px;
+    padding: 13px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    border:1px solid #a55d07;
+    background-image: url('../images/Menuebildschirm.png') ;
+    color: rgb(120,50,5);
+    text-shadow: 0 2px 2px rgba(250,227,133,1);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16),
+                0 3px 6px rgba(110,80,20,0.4),
+                inset 0 -2px 5px 1px rgba(139,66,8,1),
+                inset 0 -1px 1px 3px rgba(250,227,133,1);
+}
+
+.menue_button:hover {
+    background-size: 150% 150%;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.19),
+                0 6px gbs(0,0,0,0.23),
+                inset 0 -2px 5px 1px #b17d10,
+                inset 0 -1px 1px 3px rgba(250,227,133,1);
+
+}
