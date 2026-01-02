@@ -24,6 +24,7 @@ try {
 
             $benutzer_id = loginBenutzer($datenbank, $eingabeDaten);
        
+            http_response_code(200);
             $antwortOk = ['erfolg' => true, 'hinweis' => 'User erfoglreich eingeloggt!', 'benutzer_id' => $benutzer_id];
             echo json_encode($antwortOk);
             break;

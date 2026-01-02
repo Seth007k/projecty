@@ -84,10 +84,10 @@ try {
                         }
                     }
 
-                    //referenzprobleme werden vermieden
+                   
                     unset($gegner);
 
-                    //existier gegner?
+                   
                     if (!$ergebnisAktuelleGegner) {
                         $ausgabeNachAngriff = "Alle gegner wurden bereits besiegt!";
                         $antwort = $antwortErfolg;
@@ -97,7 +97,7 @@ try {
                         break;
                     }
 
-                    //Spieler angriff berefhnen
+                    
                     $spielerSchaden = berechneSpielerSchaden($ergebnisAktuellerCharakter, $ergebnisAktuelleGegner);
                     $ergebnisAktuelleGegner['leben'] = max(0, $ergebnisAktuelleGegner['leben'] - $spielerSchaden);
                     $ausgabeNachAngriff = "Du hast {$spielerSchaden} Schaden an {$ergebnisAktuelleGegner['name']} verursacht!";
@@ -107,7 +107,7 @@ try {
                         $ausgabeNachAngriff .= " {$ergebnisAktuelleGegner['name']} wurde besiegt! Du erhälst 100 Punkte!";
                     }
 
-                    //Gegner greift an
+                    
                     $gegnerSchaden = berechneGegnerSchaden($ergebnisAktuelleGegner, $ergebnisAktuellerCharakter);
                     if ($gegnerSchaden > 0) {
                         $ergebnisAktuellerCharakter['leben'] = max(0, $ergebnisAktuellerCharakter['leben'] - $gegnerSchaden);
@@ -116,7 +116,7 @@ try {
                         $ausgabeNachAngriff .= " {$ergebnisAktuelleGegner['name']} hat dich nicht getroffen!";
                     }
 
-                    //spieler besiegt?
+                    
                     if ($ergebnisAktuellerCharakter['leben'] <= 0) {
                         $antwort = spielerBesiegt($datenbank, $spieler_id, $charakter_id, $ergebnisAktuellerCharakter, $ergebnisAktuellesSpiel);
                         $antwort['ausgabe'] = $ausgabeNachAngriff;
@@ -128,7 +128,7 @@ try {
                     $ergebnisAktuellesSpiel['gegner_status'] = json_encode($gegnerListe);
                     speicherAktuellesSpiel($datenbank, $ergebnisAktuellesSpiel);
 
-                    //alle gegner down?
+                  
                     $gegnerBesiegt = true;
                     foreach ($gegnerListe as $gegner) {
                         if ($gegner['leben'] > 0) {
