@@ -8,6 +8,16 @@ function getSpielerId()
     return $_SESSION['benutzer_id'] ?? null;
 }
 
+function existiertBenutzer($datenbank, $benutzername){
+
+    $sqlAnweisungExistiertBenutzer = $datenbank->prepare('SELECT id FROM spieler WHERE benutzername = ?');
+    $sqlAnweisungExistiertBenutzer->bind_param("s", $benutzername);
+    $sqlAnweisungExistiertBenutzer->execute();
+    $sqlAnweisungExistiertBenutzer->store_result();
+
+    return $sqlAnweisungExistiertBenutzer->num_rows > 0;
+}
+
 function registriereBenutzer($datenbank, $eingabeDaten)
 {
    
@@ -18,14 +28,9 @@ function registriereBenutzer($datenbank, $eingabeDaten)
         throw new Exception('Benutzername und Passwort erforderlich', 400);
     }
 
-    $sqlAnweisungExistiertBenutzer = $datenbank->prepare('SELECT id FROM spieler WHERE benutzername = ?');
-    $sqlAnweisungExistiertBenutzer->bind_param("s", $benutzername);
-    $sqlAnweisungExistiertBenutzer->execute();
-    $sqlAnweisungExistiertBenutzer->store_result();
-
-    if ($sqlAnweisungExistiertBenutzer->num_rows > 0) {
-        throw new Exception('Benutzername existiert bereits', 409);
-    }
+    if (existiertBenutzer($datenbank, $benutzername)){
+        throw new Exception('Benutzername existiert bereits! Neuen Namen wählen', 409);
+    } 
 
     $gehashtesPw = password_hash($passwort, PASSWORD_DEFAULT);
 
@@ -51,6 +56,7 @@ function ladeBenutzer($datenbank, $benutzername) {
 }
 
 function pruefePasswort($ergebnisGeladenenerBenutzer, $passwort)  {
+
     if(!$ergebnisGeladenenerBenutzer || !password_verify($passwort, $ergebnisGeladenenerBenutzer['passwort'])) {
         throw new Exception('Login fehlgeschlagen!');
     }
@@ -74,7 +80,14 @@ function registriereUndEinloggen($datenbank, $eingabeDaten):int {
 }
 
 function loginBenutzer($datenbank, $eingabeDaten):int {
-    loginDatenVorhanden($eingabeDaten['benutzername'], $eingabeDaten['passwort']);
+    $benutzername = $eingabeDaten['benutzername'] ?? '';
+    $passwort = $eingabeDaten['passwort'] ?? '';
+
+    loginDatenVorhanden($benutzername, $passwort);
+    if(!existiertBenutzer($datenbank,$benutzername)){
+        throw new Exception('Benutzer existiert nicht', 404);
+    };
+
 
     $aktuellerUser = ladeBenutzer($datenbank, $eingabeDaten['benutzername']);
     pruefePasswort($aktuellerUser, $eingabeDaten['passwort']);

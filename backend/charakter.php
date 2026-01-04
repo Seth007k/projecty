@@ -1,8 +1,21 @@
 <?php
-require_once __DIR__ . '/../src/services/Database.php';
-require_once __DIR__ . '/../src/middleware/AuthMiddleWare.php';
-require_once __DIR__ . '/../src/services/CharakterService.php';
+header("Access-Control-Allow-Origin: http://localhost:8082");
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
 
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+require_once __DIR__ . '/src/services/Database.php';
+require_once __DIR__ . '/src/middleware/AuthMiddleWare.php';
+require_once __DIR__ . '/src/services/CharakterService.php';
+
+if(session_status() == PHP_SESSION_NONE){
+    session_start();
+}
 header('Content-Type: application/json');
 
 requireAuth();

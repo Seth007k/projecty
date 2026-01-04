@@ -1,13 +1,34 @@
 <?php
-require_once __DIR__ . '/../src/services/Database.php';
-require_once __DIR__ . '/../src/middleware/AuthMiddleWare.php';
-require_once __DIR__ . '/../src/services/AuthService.php';
+header("Access-Control-Allow-Origin: http://localhost:8082");
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Methods: POST, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+if(session_status() == PHP_SESSION_NONE){
+    session_start();
+}
 
 header('Content-Type: application/json');
+require_once __DIR__ . '/src/middleware/AuthMiddleWare.php';
+require_once __DIR__ . '/src/services/Database.php';
+require_once __DIR__ . '/src/services/AuthService.php';
+
+
 
 $methode = $_SERVER['REQUEST_METHOD'];
 $anwortUserDaten =  file_get_contents('php://input');
 $eingabeDaten = json_decode($anwortUserDaten, true);
+
+if(!$eingabeDaten){
+    http_response_code(400);
+    echo json_encode(['erfolg'=>false,'fehler' => 'Fehelr beim lesen der json datei']);
+    exit;
+}
 $datenbank = getDB();
 
 
@@ -23,7 +44,7 @@ try {
             }
 
             $benutzer_id = loginBenutzer($datenbank, $eingabeDaten);
-       
+
             http_response_code(200);
             $antwortOk = ['erfolg' => true, 'hinweis' => 'User erfoglreich eingeloggt!', 'benutzer_id' => $benutzer_id];
             echo json_encode($antwortOk);
@@ -43,5 +64,7 @@ try {
     }
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['erfolg' => false, 'fehler' => $e->getMessage()]);
+    $error_msg = $e->getMessage();
+    $error_trc = $e->getTraceAsString();
+    echo json_encode(['erfolg' => false, 'fehler' => $error_msg, 'trace' => $error_trc]);
 }

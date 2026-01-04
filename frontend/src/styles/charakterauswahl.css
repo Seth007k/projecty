@@ -2,21 +2,11 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden;
+
 }
 
-.start_button_container {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    height: 40vh;
-    text-align: center;
-    padding: 40px 60px;
-    border-radius: 20px;
-}
-
-.Startbildschirm {
-    background-image: url('../images/Startbildschirm.png');
+.charakterauswahl_hintergrund_container {
+    background-image: url('../images/Charakterauswahl.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -30,7 +20,15 @@ html, body {
     padding: 0
 }
 
-.start_button {
+.charakterauswahl_section {
+    text-align: center;
+    padding: 40px 60px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.1);
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+
+.charakter_button {
     display: inline-block;
     outline: none;
     font-size: 16px;
@@ -53,33 +51,14 @@ html, body {
     user-select: none;
     font-family: Arial, Helvetica, sans-serif;
     font-weight: bold;
-
 }
 
-.start_button:focus,
-.start_button:hover {
+.charakter_button:hover {
     background-size: 150% 150%;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19),
-                0 6px 6px rgba(0, 0, 0, 0.23),
+    box-shadow: 0 10px 20px rgba(0,0,0,0.19),
+                0 6px gbs(0,0,0,0.23),
                 inset 0 -2px 5px 1px #b17d10,
-                inset 0 -1px 1px 3px rgba(250, 227, 133, 1);
-    border: 1px solid rgba(165, 93, 7, 0.6);
-    color: rgba(120, 50, 5, 0.8);
+                inset 0 -1px 1px 3px rgba(250,227,133,1);
+
 }
 
-.start_button:active {
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16),
-                0 3px 6px rgba(110, 80, 20, 0.4),
-                inset 0 -2px 5px 1px #b17d10,
-                inset 0 -1px 1px 3px rgba(250, 227, 133, 1);
-}
-
-.start_button:disabled {
-    pointer-events: none;
-    opacity: .65;
-    color: #7e7e7e;
-    background: #dcdcdc;
-    box-shadow: none;
-    text-shadow: none;
-    border-color: #c2c2c2;
-}

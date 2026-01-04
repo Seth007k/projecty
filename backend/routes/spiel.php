@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/../src/services/Database.php';
-require_once __DIR__ . '/../src/middleware/AuthMiddleWare.php';
-require_once __DIR__ . '/../src/services/CharakterService.php';
-require_once __DIR__ . '/../src/services/SpielService.php';
+require_once __DIR__ . '/src/services/Database.php';
+require_once __DIR__ . '/src/middleware/AuthMiddleWare.php';
+require_once __DIR__ . '/src/services/CharakterService.php';
+require_once __DIR__ . '/src/services/SpielService.php';
 
 header('Content-Type: application/json');
 requireAuth();

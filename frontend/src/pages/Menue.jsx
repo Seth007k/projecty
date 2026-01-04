@@ -1,40 +1,83 @@
-import React from 'react';
-import {useNavigate} from 'react-router-dom';
-import '../styles/menue.css';
-import Menuebildschirm from '../images/Menuebildschirm.png';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { login, registrieren } from "../services/authService.js";
+import "../styles/menue.css";
 
 export default function Menue() {
-    const weiterleitung = useNavigate();
+  const weiterleitung = useNavigate();
 
-    return (
-        <main className='menue_hintergrund_container'style={{
-                backgroundImage: `url(${Menuebildschirm})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
-                height: "100vh",
-                width: "100vw",
-                display: "flex",
-                flexDirection: 'column',
-                justifyContent: "center",
-                alignItems: "center",
-                margin: 0,
-                padding: 0
-              }}>
-            <section className='menue_main' aria-label="Hauptmenü">
-                <header>
-                    <h1 className='menue_title'>Willkommen</h1>
-                    <p>Bitte Registrieren Sie sich, oder loggen sich ein, um das Spiel zu starten</p>
-                </header>
-                <nav>
-                    <button className='menue_button' onClick={() => weiterleitung('/login')} aria-label="Einloggen">
-                        Einloggen
-                    </button>
-                    <button className='menue_button' onClick={() => weiterleitung('/register')} aria-label="Registrieren">
-                        Registrieren
-                    </button>
-                </nav>
-            </section>
-        </main>
-    )
+  const [benutzername, setBenutzername] = useState('');
+  const [passwort, setPasswort] = useState('');
+
+  //Login
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const loginDaten = await login(benutzername, passwort);
+
+    if (loginDaten.erfolg) {
+      weiterleitung("/charakterauswahl");
+    } else {
+      alert(loginDaten.fehler);
+    }
+  };
+
+  //Registrieren
+  const handleRegister = async () => {
+    const registerDaten = await registrieren(benutzername, passwort);
+
+    if (registerDaten.erfolg) {
+      weiterleitung("/charakterauswahl");
+    } else {
+      alert(registerDaten.fehler);
+    }
+  };
+
+  return (
+    <main className="menue_hintergrund_container">
+      <section className="menue_main" aria-label="Hauptmenü">
+        <header>
+          <h1 className="menue_title">Hauptmenü</h1>
+          <p>
+            Bitte Registrieren Sie sich, oder loggen sich ein, um das Spiel zu
+            starten
+          </p>
+        </header>
+        <form className="benutzerdaten">
+          <label htmlFor="username">
+            <b>Benutzername</b>
+          </label>
+          <input
+            type="text"
+            placeholder="Benutzername eingeben"
+            id="username"
+            value={benutzername}
+            onChange={(e) => setBenutzername(e.target.value)}
+            required
+          ></input>
+
+          <label htmlFor="password">
+            <b>Passwort</b>
+          </label>
+          <input
+            type="password"
+            placeholder="Passwort eingeben"
+            id="password"
+            value={passwort}
+            onChange={(e) => setPasswort(e.target.value)}
+            required
+          ></input>
+          <button type="submit" className="menue_button" onClick={handleLogin}>
+            Einloggen
+          </button>
+          <button
+            type="button"
+            className="menue_button"
+            onClick={handleRegister}
+          >
+            Registrieren
+          </button>
+        </form>
+      </section>
+    </main>
+  );
 }

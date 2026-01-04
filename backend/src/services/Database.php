@@ -10,19 +10,24 @@ function getDB()
 
     $config = require __DIR__ . '/../../config/env.php'; // lädt env.php und speichert in $env ;
 
-    try {
-        $verbindung = new mysqli( //new msyqli(..) = verbindung php mit mysql 
-            $config['DB_HOST'],
-            $config['DB_USER'],
-            $config['DB_PASS'],
-            $config['DB_NAME'],
-        );
-        $verbindung->set_charset('utf8mb4');
-    } catch (Exception $e) {
+
+    $verbindung = new mysqli( //new msyqli(..) = verbindung php mit mysql 
+        $config['DB_HOST'],
+        $config['DB_USER'],
+        $config['DB_PASS'],
+        $config['DB_NAME']
+    );
+
+    $verbindung->set_charset('utf8mb4');
+
+    if ($verbindung->connect_error) {
         http_response_code(500);
-        echo json_encode(['erfolg' => false, 'fehler' => 'Die Verbindung zur Datenbank ist fehlgeschlagen!', 'hinweis' => $e->getMessage()]);
+        echo json_encode(['erfolg' => false, 'fehler' => 'Die Verbindung zur Datenbank ist fehlgeschlagen!', 'hinweis' => $verbindung->connect_error]);
         exit;
     }
+    mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+
 
     return $verbindung;
 }
