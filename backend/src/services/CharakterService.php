@@ -49,7 +49,7 @@ function charakterErstellen($datenbank, $spieler_id, $eingabeDaten)
     $verteidigung = 5;
     $bild = "/assets/image.png";
 
-    $sqlAnweisungCharakterErstellen = $datenbank->prepare("INSERT INTO charakter (spieler_id, name, level, leben, angriff, verteidigung, bild_charakter) VALUES (?,?,?,?,?,?,?)");
+    $sqlAnweisungCharakterErstellen = $datenbank->prepare("INSERT INTO charakter (spieler_id, name, level, leben, angriff, verteidigung, bild) VALUES (?,?,?,?,?,?,?)");
     $sqlAnweisungCharakterErstellen->bind_param("isiiiis", $spieler_id, $eingabeDaten['name'], $level, $leben, $angriff, $verteidigung, $bild);
     $sqlAnweisungCharakterErstellen->execute();
 

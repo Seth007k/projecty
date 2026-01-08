@@ -78,8 +78,8 @@ html, body {
 
 .charakter_bild {
     width: 120px;
-    height: auto;
-    border-radius: 8px;
-    margin-bottom: 5px;
-    background-color: transparent;
+    height: 500px;
+    object-fit: contain;
+ 
+    
 }
