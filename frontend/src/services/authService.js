@@ -4,6 +4,7 @@ export async function login(benutzername, passwort) {
   const response = await fetch("http://localhost:8080/auth.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({
       action: "login",
       benutzername,
@@ -21,6 +22,7 @@ export async function registrieren(benutzername, passwort) {
   const response = await fetch("http://localhost:8080/auth.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({
       action: "registrieren",
       benutzername,

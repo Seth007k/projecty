@@ -13,12 +13,12 @@ if(session_status() == PHP_SESSION_NONE){
     session_start();
 }
 
-header('Content-Type: application/json');
+
 require_once __DIR__ . '/src/middleware/AuthMiddleWare.php';
 require_once __DIR__ . '/src/services/Database.php';
 require_once __DIR__ . '/src/services/AuthService.php';
 
-
+header('Content-Type: application/json');
 
 $methode = $_SERVER['REQUEST_METHOD'];
 $anwortUserDaten =  file_get_contents('php://input');
@@ -31,7 +31,7 @@ if(!$eingabeDaten){
 }
 $datenbank = getDB();
 
-
+//Bei post wiurd action in action gespeichert und geprüft ob action == registrieren wenn ja dann registrere und logge ein und wenn nein dann loginbenutzer in benutzer_id speichern und erfolg meldung mit json ausgeben
 try {
     switch ($methode) {
         case 'POST':
@@ -49,6 +49,8 @@ try {
             $antwortOk = ['erfolg' => true, 'hinweis' => 'User erfoglreich eingeloggt!', 'benutzer_id' => $benutzer_id];
             echo json_encode($antwortOk);
             break;
+
+            //bei DELETE wird erst die aktuelle session geprüft dann mit session unset werden alle sessino variablen gelöscht und dann wird die session gekillt + meldung logout erfolgreich
         case 'DELETE':
             requireAuth();
             session_unset();
@@ -62,6 +64,7 @@ try {
             echo json_encode($antwortMethodeFehler);
             exit;
     }
+    //catch für fehler
 } catch (Exception $e) {
     http_response_code(500);
     $error_msg = $e->getMessage();

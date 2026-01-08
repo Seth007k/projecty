@@ -1,6 +1,8 @@
 <?php 
 
-
+//funktion bekommt 3 parameter, es wird geprüft ob charakterid gesetzt ist, wenn ja wird der charakter geladen aus der Datenbank mit bind param sql inkection schutz
+// wenn charakter_id nicht gesetzt ist alle charakter des eingeloggten spielers laden. execute führt sql aus und getResult gibt mir ergebnis welches ich in ergebnischarakter speichere
+// dann erstelle ich ein array in charaktere und iteriere mit eine while schleife durch das ergebnis von getResult()um jede zeile durchzugehen und alle benötigten datensätze abzufragen - PHP Array; return liste von charaktern
 function charakterLaden($datenbank, $spieler_id, $charakter_id)
 {
     if ($charakter_id) {
@@ -22,13 +24,7 @@ function charakterLaden($datenbank, $spieler_id, $charakter_id)
     return $charaktere;
 }
 
-function charakterAktualisieren($datenbank, $spieler_id, $ergebnisAktuellerCharakter)
-{
-    $sqlAnweisungCharakterAktualisieren = $datenbank->prepare("UPDATE charakter SET name = ?, level = ?, leben = ?, angriff = ?, verteidigung = ? WHERE id = ? AND spieler_id = ?");
-    $sqlAnweisungCharakterAktualisieren->bind_param("siiiiii", $ergebnisAktuellerCharakter['name'], $ergebnisAktuellerCharakter['level'], $ergebnisAktuellerCharakter['leben'], $ergebnisAktuellerCharakter['angriff'], $ergebnisAktuellerCharakter['verteidigung'], $ergebnisAktuellerCharakter['id'], $spieler_id);
-    $sqlAnweisungCharakterAktualisieren->execute();
-}
-
+//function für charakter löschen: parameter + sql anweisung mit charakter_id + schutz sql injection, löschungserfolg gibt true oder false zurück je nachdem obs geklappt hat
 function charakterLöschen($datenbank, $spieler_id, $charakter_id)
 {
     $sqlAnweisungSpieleDesCharaktersLöschen = $datenbank->prepare("DELETE FROM spiele WHERE charakter_id = ?");
@@ -44,26 +40,30 @@ function charakterLöschen($datenbank, $spieler_id, $charakter_id)
     return $löschungErfolg;
 }
 
+// charaktererstellung mit status und bild, id wird zurückgegeben
 function charakterErstellen($datenbank, $spieler_id, $eingabeDaten)
 {
     $level = 1;
     $leben = 1000;
     $angriff = 250;
     $verteidigung = 5;
+    $bild = "/assets/image.png";
 
-    $sqlAnweisungCharakterErstellen = $datenbank->prepare("INSERT INTO charakter (spieler_id, name, level, leben, angriff, verteidigung) VALUES (?,?,?,?,?,?)");
-    $sqlAnweisungCharakterErstellen->bind_param("isiiii", $spieler_id, $eingabeDaten['name'], $level, $leben, $angriff, $verteidigung);
+    $sqlAnweisungCharakterErstellen = $datenbank->prepare("INSERT INTO charakter (spieler_id, name, level, leben, angriff, verteidigung, bild_charakter) VALUES (?,?,?,?,?,?,?)");
+    $sqlAnweisungCharakterErstellen->bind_param("isiiiis", $spieler_id, $eingabeDaten['name'], $level, $leben, $angriff, $verteidigung, $bild);
     $sqlAnweisungCharakterErstellen->execute();
 
     return $sqlAnweisungCharakterErstellen->insert_id;
 }
 
+//name ist prgramm
 function pruefeCharakterName($eingabeDaten)
 {
     return !empty($eingabeDaten['name']);
 }
 
-function exisitiertCharakter($eingabeDaten)
+//name ist prgoramm
+function holeCharakterId($eingabeDaten)
 {
     return $eingabeDaten['id'] ?? null;
 }
