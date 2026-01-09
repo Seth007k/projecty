@@ -95,18 +95,26 @@ export default function Charakterauswahl() {
 
             <ul className="charakter_liste">
               {charaktere.map((c) => (
-                <li key={c.id} className="charakter_status">
+                <li key={c.id} className={`charakter_status ${charakter?.id === c.id ? "aktiv" : ""}`} onClick={() => setCharakter(c)}>
+                  <div className="charakter_bild_wrapper">
                   <img
                     src={c.bild}
                     alt={c.name}
                     className="charakter_bild"
                   />
-                  <button onClick={() => setCharakter(c)}>{c.name}</button>
+                  <div className="charakter_info">
+                    <h3>{c.name}</h3>
+                    <p>Level: {c.level}</p>
+                    <p>Leben: {c.leben}</p>
+                    <p>Angriff: {c.angriff}</p>
+                    <p>Verteidigung: {c.verteidigung}</p>
+                  </div>
+                  </div>
                 </li>
               ))}
             </ul>
 
-            <div style={{ marginTop: "10px" }}>
+            <div>
               <button
                 className="charakter_button"
                 onClick={handleWeiterspielen}
@@ -126,7 +134,7 @@ export default function Charakterauswahl() {
           <p>Noch kein Charakter vorhanden</p>
         )}
 
-        <div style={{ marginTop: "20px" }}>
+        <div>
           <input name="charName_input"
             type="text"
             value={name}
