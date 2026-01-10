@@ -63,7 +63,7 @@ export default function Charakterauswahl() {
     weiterleitung("/spiel");
   };
 
-  const handleCharakterLoeschen = () => {
+  const handleCharakterLoeschen = async () => {
     if (!charakter) return;
     const bestaetigung = window.confirm(
       `Willst du den Charakter wirklich löschen?`
@@ -71,10 +71,10 @@ export default function Charakterauswahl() {
 
     if (!bestaetigung) return;
 
-    const antwort = loescheCharakter(charakter.id);
+    const antwort = await loescheCharakter(charakter.id);
     if (antwort.erfolg) {
       setCharakter(null);
-      setCharaktere((prev) => prev.filter((c) => c.id !== charakter_id));
+      setCharaktere((prev) => prev.filter((c) => c.id !== charakter.id));
     } else {
       alert(antwort.fehler || "charakter konnte nicht gelöscht werden");
     }
@@ -102,13 +102,14 @@ export default function Charakterauswahl() {
                     alt={c.name}
                     className="charakter_bild"
                   />
+                  </div>
+
                   <div className="charakter_info">
                     <h3>{c.name}</h3>
                     <p>Level: {c.level}</p>
                     <p>Leben: {c.leben}</p>
                     <p>Angriff: {c.angriff}</p>
                     <p>Verteidigung: {c.verteidigung}</p>
-                  </div>
                   </div>
                 </li>
               ))}

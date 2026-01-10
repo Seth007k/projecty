@@ -61,9 +61,3 @@ function pruefeCharakterName($eingabeDaten)
 {
     return !empty($eingabeDaten['name']);
 }
-
-//name ist prgoramm
-function holeCharakterId($eingabeDaten)
-{
-    return $eingabeDaten['id'] ?? null;
-}

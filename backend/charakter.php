@@ -76,7 +76,7 @@ try {
         //Bei DELETE wir zuerst geprüft die iD der GEt Anfrage und speichert diese in charakter_id, dann wird geprüft ob die ID gesetzt wurde wenn ja, dann werden wieder parameter an charakterlöschen funktion übergeben und das ergebnis in charaktergelöscht gespeichert.
         //danach wird die antwortvariable vorbereitet und ausgegeben als json
         case 'DELETE':
-            $charakter_id = holeCharakterId($eingabeDaten);
+            $charakter_id = $eingabeDaten['id'] ?? null;
             if (!$charakter_id) {
                 http_response_code(400);
                 $antwortDatenFehler = ['erfolg' => false, 'fehler' => 'Bitte name und id ausfüllen'];
