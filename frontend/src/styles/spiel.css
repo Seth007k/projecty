@@ -1,0 +1,71 @@
+.spiel_container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-image: url('../images/runde1.png');
+    background-size: cover;
+    background-position: center;
+    padding: 10px;
+}
+
+.spielfeld {
+    display: flex;
+    flex: 1;
+    justify-content: 20px;
+    padding: 20px;
+}
+
+.charakter_info, .gegner_info {
+    background-color: rgba(0,0,0,0.5);
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    min-width: 200px;
+}
+
+.charakter_bild {
+    width: 150px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+.gegner_bild {
+    width: 150px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+.gegner {
+    margin-bottom: 15px;
+}
+
+.action_bar {
+    display: flex;
+    justify-content: center;
+    padding: 15px;
+    background-color: rgba(0,0,0,0.6);
+}
+
+.angriff_button {
+    margin: 0 10px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.beenden_button {
+    margin: 0 10px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.loading, .game_over {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: white;
+    font-size: 1.5rem;
+}

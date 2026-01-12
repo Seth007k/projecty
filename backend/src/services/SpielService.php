@@ -190,3 +190,53 @@ function nochmalSpielen($datenbank, $spieler_id, $charakter_id, $ergebnisAktuell
     $sqlAnweisungSpielZuruecksetzen->execute();
     return ['hinweis' => 'Level Up! Neues Spiel wurde gestartet - viel Erfolg!', 'gegner' => $gegnerListe, 'schwierigkeit' => $neueSchwierigkeit];
 }
+
+function spielerAngriff($datenbank, $ergebnisAktuellesSpiel, $ergebnisAktuellerCharakter) {
+    //Gegnerliste wird aus spielstand geladen
+    $gegnerListe = json_decode($ergebnisAktuellesSpiel['gegner_status'], true) ?? [];
+
+    if(empty($gegnerListe)) {
+        $gegnerListe = erstelleGegner($ergebnisAktuellesSpiel['aktuelle_runde'], $ergebnisAktuellesSpiel['schwierigkeit']);
+    }
+
+    //Spieler greift an
+    $gegner = &$gegnerListe[0];
+    $schadenSpieler = berechneSpielerSchaden($ergebnisAktuellerCharakter, $gegner);
+    $gegner['leben'] = max(0, $gegner['leben'] - $schadenSpieler);
+
+    //Gegner greift an falls am leben
+    if($gegner['leben'] > 0) {
+        $schadenGegner = berechneGegnerSchaden($gegner, $ergebnisAktuellerCharakter);
+        $ergebnisAktuellerCharakter['leben'] = max(0, $ergebnisAktuellerCharakter['leben'] - $schadenGegner);
+    }
+
+    //Gegnerstatus speichern
+    gegnerStatusSpeichern($datenbank, $ergebnisAktuellesSpiel['id'], $gegnerListe);
+
+    //Wurde der Spieler besiegt? 
+    if ($ergebnisAktuellerCharakter['leben'] <= 0) {
+        return spielerBesiegt($datenbank, $ergebnisAktuellerCharakter['spieler_id'] ?? $ergebnisAktuellesSpiel['spieler_id'], $ergebnisAktuellerCharakter['id'], $ergebnisAktuellerCharakter, $ergebnisAktuellesSpiel);
+    }
+
+    //punkte erhöhen, runde updaten, neue gegner erstellen
+    if($gegner['leben'] === 0) {
+        $ergebnisAktuellesSpiel['punkte'] += 10;
+        $ergebnisAktuellesSpiel['aktuelle_runde'] += 1;
+
+        $gegnerListe = erstelleGegner($ergebnisAktuellesSpiel['aktuelle_runde'], $ergebnisAktuellesSpiel['schwierigkeit']);
+        gegnerStatusSpeichern($datenbank, $ergebnisAktuellesSpiel['id'], $gegnerListe);
+    }
+
+    //Spielstand speichern
+    speicherAktuellesSpiel($datenbank, $ergebnisAktuellesSpiel);
+
+    //Ergebnis zurückgeben
+    return [
+        'charakter' => $ergebnisAktuellerCharakter,
+        'gegner_status' => json_encode($gegnerListe),
+        'punkte' => $ergebnisAktuellesSpiel['punkte'],
+        'aktuelle_runde' => $ergebnisAktuellesSpiel['aktuelle_runde'],
+        'game_over' => false
+    ];
+
+}
