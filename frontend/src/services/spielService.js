@@ -1,5 +1,5 @@
 export async function ladeSpielUndCharakter(spielerId, charakterId) {
-    const response = await fetch("http://localhost:8082/index.php/spiel", {
+    const response = await fetch("http://localhost:8080/spiel.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -18,7 +18,7 @@ export async function ladeSpielUndCharakter(spielerId, charakterId) {
 }
 
 export async function spielerAngriff(spielId, charakterId) {
-    const response = await fetch("http://localhost:8082/index.php/spiel", {
+    const response = await fetch("http://localhost:8080/spiel.php", {
         method: "POST",
         headers: { "Content-Type" : "application/json" },
         credentials: "include",
@@ -37,7 +37,7 @@ export async function spielerAngriff(spielId, charakterId) {
 }
 
 export async function nochmalSpielen(spielerId, charakterId, spielId) {
-    const response = await fetch("http://localhost:8082/index.php/spiel", {
+    const response = await fetch("http://localhost:8080/spiel.php", {
         method: "POST",
         headers: { "Content-Type" : "application/json" },
         credentials: "include",
@@ -59,7 +59,7 @@ export async function nochmalSpielen(spielerId, charakterId, spielId) {
 
 
 export async function gegnerStatusSpeichern(spielId, gegnerListe) {
-    const response = await fetch("http://localhost:8080/index.php/spiel", {
+    const response = await fetch("http://localhost:8080/spiel.php", {
         method: "POST",
         headers: { "Content-Type" : "application/json" },
         credentials: "include",

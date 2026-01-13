@@ -74,7 +74,7 @@ try {
             $gegnerListe = isset($ergebnisAktuellesSpiel['gegner_status']) ? json_decode($ergebnisAktuellesSpiel['gegner_status'], true) : [];
 
             switch ($benutzerAktion) {
-                case 'angriff':
+                case 'spielerAngriff':
                     $ergebnisAktuelleGegner = null;
 
                     foreach ($gegnerListe as &$gegner) {
