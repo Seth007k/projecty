@@ -67,7 +67,7 @@ export default function Charakterauswahl() {
       return;
     }
     
-    weiterleitung(`/Spiel/${spielerId}/${charakterId}`);
+    weiterleitung(`/Spiel/${spielerId}/${charakter.id}`);
   };
 
   const handleCharakterLoeschen = async () => {
