@@ -14,7 +14,7 @@ function App() {
         <Route path="/menue" element={<Menue />} />
         <Route path="/charakterauswahl" element={<Charakterauswahl/>} />
         <Route path="/spiel/:spielerId/:charakterId" element={<Spiel/>} />
-        {/* Hier kommt nachher die login router rein */}
+        
       </Routes>
     </Router>
   );

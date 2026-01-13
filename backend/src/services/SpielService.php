@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once __DIR__ . '/CharakterService.php';
 
 
@@ -15,7 +15,7 @@ function ladeSpielUndCharakter($datenbank, $spieler_id, $charakter_id)
 
     $charakterListe = charakterLaden($datenbank, $spieler_id, $charakter_id);
     if (empty($charakterListe)) {
-            return ['error' => 'Charakter nicht gefunden!'];
+        return ['error' => 'Charakter nicht gefunden!'];
     }
 
     return [
@@ -135,6 +135,24 @@ function berechneGegnerSchaden($ergebnisAktuelleGegner, $ergebnisAktuellerCharak
     }
 }
 
+function charakterAktualisieren($datenbank, $spieler_id, $charakter)
+{
+    $sqlAnweisungAktualisiereCharakter = $datenbank->prepare("UPDATE charakter SET leben =?, angriff = ?, verteidigung = ?, level = ?, punkte = ? WHERE id = ? AND spieler_id =?");
+
+    $leben = $charakter['leben'];
+    $angriff = $charakter['angriff'];
+    $verteidigung = $charakter['verteidigung'];
+    $level = $charakter['level'];
+    $punkte = $charakter['punkte'];
+    $charakter_id = $charakter['id'];
+
+    $sqlAnweisungAktualisiereCharakter->bind_param("iiiiiii", $leben, $angriff, $verteidigung, $level, $punkte, $charakter_id, $spieler_id);
+    $sqlAnweisungAktualisiereCharakter->execute();
+    $sqlAnweisungAktualisiereCharakter->close();
+
+    return $datenbank->affected_rows > 0;
+}
+
 function gegnerStatusSpeichern($datenbank, $spiel_id, $gegnerListe)
 {
     $gegnerAusJson = json_encode($gegnerListe);
@@ -191,11 +209,12 @@ function nochmalSpielen($datenbank, $spieler_id, $charakter_id, $ergebnisAktuell
     return ['hinweis' => 'Level Up! Neues Spiel wurde gestartet - viel Erfolg!', 'gegner' => $gegnerListe, 'schwierigkeit' => $neueSchwierigkeit];
 }
 
-function spielerAngriff($datenbank, $ergebnisAktuellesSpiel, $ergebnisAktuellerCharakter) {
+function spielerAngriff($datenbank, $ergebnisAktuellesSpiel, $ergebnisAktuellerCharakter)
+{
     //Gegnerliste wird aus spielstand geladen
     $gegnerListe = json_decode($ergebnisAktuellesSpiel['gegner_status'], true) ?? [];
 
-    if(empty($gegnerListe)) {
+    if (empty($gegnerListe)) {
         $gegnerListe = erstelleGegner($ergebnisAktuellesSpiel['aktuelle_runde'], $ergebnisAktuellesSpiel['schwierigkeit']);
     }
 
@@ -205,7 +224,7 @@ function spielerAngriff($datenbank, $ergebnisAktuellesSpiel, $ergebnisAktuellerC
     $gegner['leben'] = max(0, $gegner['leben'] - $schadenSpieler);
 
     //Gegner greift an falls am leben
-    if($gegner['leben'] > 0) {
+    if ($gegner['leben'] > 0) {
         $schadenGegner = berechneGegnerSchaden($gegner, $ergebnisAktuellerCharakter);
         $ergebnisAktuellerCharakter['leben'] = max(0, $ergebnisAktuellerCharakter['leben'] - $schadenGegner);
     }
@@ -219,7 +238,7 @@ function spielerAngriff($datenbank, $ergebnisAktuellesSpiel, $ergebnisAktuellerC
     }
 
     //punkte erhöhen, runde updaten, neue gegner erstellen
-    if($gegner['leben'] === 0) {
+    if ($gegner['leben'] === 0) {
         $ergebnisAktuellesSpiel['punkte'] += 10;
         $ergebnisAktuellesSpiel['aktuelle_runde'] += 1;
 
@@ -238,5 +257,4 @@ function spielerAngriff($datenbank, $ergebnisAktuellesSpiel, $ergebnisAktuellerC
         'aktuelle_runde' => $ergebnisAktuellesSpiel['aktuelle_runde'],
         'game_over' => false
     ];
-
 }

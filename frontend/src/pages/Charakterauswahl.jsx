@@ -9,10 +9,12 @@ import {
 
 export default function Charakterauswahl() {
   const weiterleitung = useNavigate();
+
   const [charaktere, setCharaktere] = useState(null);
   const [charakter, setCharakter] = useState(null);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
+  const spielerId = localStorage.getItem("benutzer_id");
 
   const ladeCharakter = async () => {
     try {
@@ -51,16 +53,21 @@ export default function Charakterauswahl() {
       }
     } catch (e) {
       console.error("Fehler beim Erstellen:", e);
-      alert("Fehler beim Estellen des Charakters!");
     }
   };
 
-  const handleWeiterspielen = (id) => {
-    if (!charakter) {
+  const handleWeiterspielen = () => {
+    if (!charakter || !charakter.id) {
       alert("Bitte wähle zuerst einen Charakter aus!");
       return;
     }
-    weiterleitung("/spiel");
+    const spielerId = localStorage.getItem('benutzer_id');
+    if(!spielerId) {
+      console.log("Kein Spieler eingeloggt");
+      return;
+    }
+    
+    weiterleitung(`/Spiel/${spielerId}/${charakterId}`);
   };
 
   const handleCharakterLoeschen = async () => {
@@ -79,6 +86,14 @@ export default function Charakterauswahl() {
       alert(antwort.fehler || "charakter konnte nicht gelöscht werden");
     }
   };
+
+  const handleCharakterWahlen= (id) => {
+    if(!id) {
+      console.error("Kein Char ausgeweählt");
+      return;
+    }
+    weiterleitung(`/Spiel/${spielerId}/${id}`);
+  }
 
   if (loading) return <p>Lade Charakter..</p>;
 
@@ -119,6 +134,7 @@ export default function Charakterauswahl() {
               <button
                 className="charakter_button"
                 onClick={handleWeiterspielen}
+                
               >
                 Weiterspielen
               </button>

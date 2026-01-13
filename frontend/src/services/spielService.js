@@ -1,11 +1,10 @@
-export async function ladeSpielUndCharakter(spielerId, charakterId) {
+export async function ladeSpielUndCharakter( charakterId) {
     const response = await fetch("http://localhost:8080/spiel.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-            action: "ladeSpielUndCharakter",
-            spieler_id: spielerId,
+            action: "ladeSpiel",
             charakter_id: charakterId
         })
     });

@@ -1,11 +1,37 @@
 <?php
+header("Access-Control-Allow-Origin: http://localhost:8082");
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+
+//Abfangen der OPTIONS REQUEST
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
 require_once __DIR__ . '/src/services/Database.php';
 require_once __DIR__ . '/src/middleware/AuthMiddleWare.php';
 require_once __DIR__ . '/src/services/CharakterService.php';
 require_once __DIR__ . '/src/services/SpielService.php';
 
-header('Content-Type: application/json');
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+//aus der middleware, prüft ob SESSION benutzerID hat benötig für login
 requireAuth();
+
+//speichert buntzerid von session in spieler_id und prüft ob spieler_id gesetzt wurde
+$spieler_id = $_SESSION['benutzer_id'] ?? null;
+if (!$spieler_id) {
+    http_response_code(401);
+    echo json_encode(['erfolg' => false, 'fehler' => 'nicht eingeloggt!']);
+    exit;
+}
+
+header('Content-Type: application/json');
+
 
 $methode = $_SERVER['REQUEST_METHOD'];
 $spieler_id = $_SESSION['benutzer_id'];
@@ -39,7 +65,7 @@ try {
             }
 
             $geladeneDaten = ladeSpielUndCharakter($datenbank, $spieler_id, $charakterId);
-            if(!$geladeneDaten) {
+            if (!$geladeneDaten) {
                 http_response_code(404);
                 $antwort = $antwortSpielNichtGefunden;
                 break;
@@ -55,7 +81,7 @@ try {
             break;
         case 'POST':
             $charakter_id = $eingabedaten['charakter_id'] ?? null;
-            $benutzerAktion = $eingabedaten['aktion'] ?? null;
+            $benutzerAktion = $eingabedaten['action'] ?? null;
 
             if (!$charakter_id || !$benutzerAktion) {
                 http_response_code(400);
@@ -63,17 +89,28 @@ try {
                 break;
             }
 
-            $geladeneDaten = ladeSpielUndCharakter($datenbank, $spieler_id, $charakter_id);
-            if (isset($geladeneDaten['error'])) {
-                $antwort = $geladeneDaten['error'];
-                break;
+            if ($benutzerAktion !== 'ladeSpiel') {
+                $geladeneDaten = ladeSpielUndCharakter($datenbank, $spieler_id, $charakter_id);
+                if (isset($geladeneDaten['error'])) {
+                    http_response_code(400);
+                    $antwort = ['erfolg' => false, 'fehler' => $geladeneDaten['error']];
+                    break;
+                }
+                $ergebnisAktuellesSpiel = $geladeneDaten['spiel'];
+                $ergebnisAktuellerCharakter = $geladeneDaten['charakter'];
+                $gegnerListe = isset($ergebnisAktuellesSpiel['gegner_status']) ? json_decode($ergebnisAktuellesSpiel['gegner_status'], true) : [];
             }
 
-            $ergebnisAktuellesSpiel = $geladeneDaten['spiel'];
-            $ergebnisAktuellerCharakter = $geladeneDaten['charakter'];
-            $gegnerListe = isset($ergebnisAktuellesSpiel['gegner_status']) ? json_decode($ergebnisAktuellesSpiel['gegner_status'], true) : [];
-
             switch ($benutzerAktion) {
+                case 'ladeSpiel':
+                    $geladeneDaten = ladeSpielUndCharakter($datenbank, $spieler_id, $charakter_id);
+                    if (isset($geladeneDaten['error'])) {
+                        $antwort = $geladeneDaten['error'];
+                    } else {
+                        $antwort = ['erfolg' => true, 'spiel' => $geladeneDaten['spiel'], 'charakter' => $geladeneDaten['charakter']];
+                    }
+                    echo json_encode($antwort);
+                    exit;
                 case 'spielerAngriff':
                     $ergebnisAktuelleGegner = null;
 
@@ -84,10 +121,8 @@ try {
                         }
                     }
 
-                   
                     unset($gegner);
 
-                   
                     if (!$ergebnisAktuelleGegner) {
                         $ausgabeNachAngriff = "Alle gegner wurden bereits besiegt!";
                         $antwort = $antwortErfolg;
@@ -97,7 +132,7 @@ try {
                         break;
                     }
 
-                    
+
                     $spielerSchaden = berechneSpielerSchaden($ergebnisAktuellerCharakter, $ergebnisAktuelleGegner);
                     $ergebnisAktuelleGegner['leben'] = max(0, $ergebnisAktuelleGegner['leben'] - $spielerSchaden);
                     $ausgabeNachAngriff = "Du hast {$spielerSchaden} Schaden an {$ergebnisAktuelleGegner['name']} verursacht!";
@@ -107,7 +142,7 @@ try {
                         $ausgabeNachAngriff .= " {$ergebnisAktuelleGegner['name']} wurde besiegt! Du erhälst 100 Punkte!";
                     }
 
-                    
+
                     $gegnerSchaden = berechneGegnerSchaden($ergebnisAktuelleGegner, $ergebnisAktuellerCharakter);
                     if ($gegnerSchaden > 0) {
                         $ergebnisAktuellerCharakter['leben'] = max(0, $ergebnisAktuellerCharakter['leben'] - $gegnerSchaden);
@@ -116,7 +151,7 @@ try {
                         $ausgabeNachAngriff .= " {$ergebnisAktuelleGegner['name']} hat dich nicht getroffen!";
                     }
 
-                    
+
                     if ($ergebnisAktuellerCharakter['leben'] <= 0) {
                         $antwort = spielerBesiegt($datenbank, $spieler_id, $charakter_id, $ergebnisAktuellerCharakter, $ergebnisAktuellesSpiel);
                         $antwort['ausgabe'] = $ausgabeNachAngriff;
@@ -128,7 +163,7 @@ try {
                     $ergebnisAktuellesSpiel['gegner_status'] = json_encode($gegnerListe);
                     speicherAktuellesSpiel($datenbank, $ergebnisAktuellesSpiel);
 
-                  
+
                     $gegnerBesiegt = true;
                     foreach ($gegnerListe as $gegner) {
                         if ($gegner['leben'] > 0) {
@@ -183,6 +218,7 @@ try {
                     $antwort = $antwortMethodenFehler;
                     break;
             }
+            break;
     }
 } catch (Exception $e) {
     http_response_code(500);
