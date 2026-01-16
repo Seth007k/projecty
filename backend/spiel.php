@@ -214,7 +214,7 @@ try {
                     ];
                     $antwort['gegner'] = $gegnerListe;
                     break;
-                case 'nochmal_spielen':
+        case 'nochmal_spielen':
                     $ergebnisNochmalSpielen = nochmalSpielen($datenbank, $spieler_id, $charakter_id, $ergebnisAktuellesSpiel);
                     $neuerCharakter = charakterLaden($datenbank, $spieler_id, $charakter_id)[0];
                     if (empty($neuerCharakter)) {
@@ -224,10 +224,13 @@ try {
                     $antwort = [
                         'schwierigkeit' => $ergebnisNochmalSpielen['schwierigkeit'],
                         'gegner' => $ergebnisNochmalSpielen['gegner'],
-                        'runde' => 1,
+                        'runde' => $ergebnisAktuellesSpiel['aktuelle_runde'],
+                        'charakter' => $neuerCharakter,
                         'hinweis' => $ergebnisNochmalSpielen['hinweis']
                     ];
-                    break;
+                   header('Conten-Type: application/json');
+                   echo json_encode($antwort);
+                   exit;       
                 default:
                     http_response_code(400);
                     $antwort = $antwortMethodenFehler;

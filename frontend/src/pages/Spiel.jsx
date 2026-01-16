@@ -58,7 +58,7 @@ export default function Spiel() {
   }, [charakterId, spielerId]);
 
   const handleAngriff = async () => {
-    if (!spiel || gameOver) return;
+    if (!spiel || gameOver || !charakter || gegnerListe.length === 0) return;
 
     try {
       const angriffDaten = await spielerAngriff(spiel.id, charakterId);
@@ -92,19 +92,22 @@ export default function Spiel() {
     if (!spiel) return;
 
     try {
-      const nochmalSpielen = await nochmalSpielenService(
+      const nochmalSpielenDaten = await nochmalSpielenService(
         spielerId,
         charakterId,
         spiel.id
       );
 
-      setGegnerListe(nochmalSpielen.gegner);
-      setGameOver(false);
+      setCharakter(nochmalSpielenDaten.charakter);
+      setGegnerListe(nochmalSpielenDaten.gegner || []);
       setSpiel({
         ...spiel,
-        schwierigkeit: nochmalSpielen.schwierigkeit,
-        aktuelle_runde: 1,
+        schwierigkeit: nochmalSpielenDaten.schwierigkeit,
+        aktuelle_runde: nochmalSpielenDaten.aktuelle_runde,
       });
+      setGameOver(false);
+      setGewonnen(false);
+      setAusgabe(nochmalSpielenDaten.hinweis);
     } catch (e) {
       console.error("Fehler beim neustarten des Spiels:", e);
     }

@@ -41,7 +41,7 @@ export async function nochmalSpielen(spielerId, charakterId, spielId) {
         headers: { "Content-Type" : "application/json" },
         credentials: "include",
         body: JSON.stringify({
-            action: "nochmalSpielen",
+            action: "nochmal_spielen",
             spieler_id: spielerId,
             charakter_id: charakterId,
             spiel_id: spielId

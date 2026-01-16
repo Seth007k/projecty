@@ -198,14 +198,22 @@ function nochmalSpielen($datenbank, $spieler_id, $charakter_id, $ergebnisAktuell
     $sqlAnweisungLevelUp->execute();
 
     $neueSchwierigkeit = $ergebnisAktuellesSpiel['schwierigkeit'] + 1;
+    $neueRunde = $ergebnisAktuellesSpiel['aktuelle_runde'] ?? 1;
+ 
 
     $gegnerListe = erstelleGegner(1, $neueSchwierigkeit);
     $gegnerAusJson = json_encode($gegnerListe);
 
-    $sqlAnweisungSpielZuruecksetzen = $datenbank->prepare("UPDATE spiele SET aktuelle_runde = 1, schwierigkeit = ?, gespeichert_am = NOW(), gegner_status = ?, punkte = ? WHERE charakter_id = ? AND spieler_id = ? ");
+    $sqlAnweisungSpielZuruecksetzen = $datenbank->prepare("UPDATE spiele SET aktuelle_runde = ?, schwierigkeit = ?, gespeichert_am = NOW(), gegner_status = ?, punkte = ? WHERE charakter_id = ? AND spieler_id = ? ");
     $sqlAnweisungSpielZuruecksetzen->bind_param("isiii", $neueSchwierigkeit, $gegnerAusJson, $ergebnisAktuellesSpiel['punkte'], $charakter_id, $spieler_id);
     $sqlAnweisungSpielZuruecksetzen->execute();
-    return ['hinweis' => 'Level Up! Neues Spiel wurde gestartet - viel Erfolg!', 'gegner' => $gegnerListe, 'schwierigkeit' => $neueSchwierigkeit];
+
+    $sqlAnweisungLadeCharakter = $datenbank->prepare("SELECT * FROM charakter WHERE id =? AND spieler_id =?");
+    $sqlAnweisungLadeCharakter->bind_param("ii", $charakter_id, $spieler_id);
+    $sqlAnweisungLadeCharakter->execute();
+    $ergebnisLadecharakter = $sqlAnweisungLadeCharakter->get_result();
+    $ergebnisLadeCharakter = $ergebnisLadecharakter->fetch_assoc();
+    return ['hinweis' => 'Level Up! Neues Spiel wurde gestartet - viel Erfolg!', 'gegner' => $gegnerListe, 'schwierigkeit' => $neueSchwierigkeit, 'charakter' => $ergebnisLadeCharakter, 'aktuelle_runde' => $neueRunde];
 }
 
 function spielerAngriff($datenbank, $ergebnisAktuellesSpiel, $ergebnisAktuellerCharakter)
