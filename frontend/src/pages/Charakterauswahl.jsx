@@ -113,7 +113,7 @@ export default function Charakterauswahl() {
                 <li key={c.id} className={`charakter_status ${charakter?.id === c.id ? "aktiv" : ""}`} onClick={() => setCharakter(c)}>
                   <div className="charakter_bild_wrapper">
                   <img
-                    src={c.bild}
+                    src={`/assets/${charakter.bild || "charakter.png"}`}
                     alt={c.name}
                     className="charakter_bild"
                   />

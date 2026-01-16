@@ -15,6 +15,8 @@ export default function Spiel() {
   const [gegnerListe, setGegnerListe] = useState([]);
   const [gameOver, setGameOver] = useState(false);
   const weiterleitung = useNavigate();
+  const [ausgabe, setAusgabe] = useState("");
+  const [gewonnen, setGewonnen] = useState(false);
 
   useEffect(() => {
     console.log(spielerId, charakterId);
@@ -61,21 +63,25 @@ export default function Spiel() {
     try {
       const angriffDaten = await spielerAngriff(spiel.id, charakterId);
 
-      if (angriffDaten.game_over) {
+      setGegnerListe(angriffDaten.gegner || []);
+      setCharakter(angriffDaten.spieler || charakter);
+      setSpiel({
+        ...spiel,
+        aktuelle_runde: angriffDaten.spiel.aktuelle_runde,
+        punkte: angriffDaten.spiel.punkte,
+      });
+
+      setAusgabe(angriffDaten.ausgabe || "");
+
+      const bossBesiegt =
+        angriffDaten.gegner.every((g) => g.leben === 0) &&
+        angriffDaten.spiel.aktuelle_runde === 4;
+
+      if (bossBesiegt) {
+        setGewonnen(true);
+      }
+      if (angriffDaten.charakter.leben <= 0) {
         setGameOver(true);
-        setCharakter(angriffDaten);
-      } else {
-        setGegnerListe(
-          angriffDaten.gegner_status
-            ? JSON.parse(angriffDaten.gegner_status)
-            : []
-        );
-        setCharakter(angriffDaten.charakter || charakter);
-        setSpiel({
-          ...spiel,
-          üpunkte: angriffDaten.punkte,
-          aktuelle_runde: angriffDaten.aktuelle_runde,
-        });
       }
     } catch (e) {
       console.error("Fehler beim Angriff:", e);
@@ -105,26 +111,40 @@ export default function Spiel() {
   };
 
   if (loading) return <div className="loading">Lade Spiel...</div>;
+
   if (!charakter || !spiel) {
     return <div className="loading"> Charakter oder Spiel nicht gefunden!</div>;
   }
 
-  if (gameOver)
+  if (gameOver) {
     return (
-      <div className="game_over">
-        <h2>Game Over!</h2>
-        <button onClick={() => weiterleitung("/Menue")}>
-          zurück zum Menü!
+      <div className="spiel_container">
+        <h2> Verloren!</h2>
+        <button onClick={() => weiterleitung("/charakterauswahl")}>
+          Beenden
         </button>
       </div>
     );
+  }
+
+  if (gewonnen) {
+    return (
+      <div className="spiel_container">
+        <h2>Gewonnen!</h2>
+        <button onClick={handleNochmalSpielen}>Nochmal spielen!</button>
+        <button onClick={() => weiterleitung("/charakterauswahl")}>
+          Beenden
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="spiel_container">
-      <div className="spielfeld">
-        <div className="charakter_info">
+      <div className="kampffeld">
+        <div className="charakter">
           <img
-            src={`/assets/${charakter.bild}`}
+            src={`/assets/${charakter.bild || "charakter.png"}`}
             alt={charakter.name}
             className="charakter_bild"
           />
@@ -137,7 +157,7 @@ export default function Spiel() {
           </div>
         </div>
 
-        <div className="gegner_info">
+        <div className="gegner_liste">
           {gegnerListe.map((gegner, index) => (
             <div key={index} className="gegner">
               <img
@@ -145,7 +165,7 @@ export default function Spiel() {
                 alt={gegner.name}
                 className="gegner_bild"
               />
-              <div className="gegner_info">
+              <div className="info">
                 <h3>{gegner.name}</h3>
                 <p>Leben: {gegner.leben}</p>
                 <p>Angriff: {gegner.angriff}</p>
@@ -155,17 +175,42 @@ export default function Spiel() {
           ))}
         </div>
       </div>
-
       <div className="action_bar">
-        <button className="angriff_button" onClick={handleAngriff}>
-          Angriff
-        </button>
-        <button
-          className="beenden_button"
-          onClick={() => weiterleitung("/charakterauswahl")}
-        >
-          Beenden
-        </button>
+        {!gameOver && !gewonnen && (
+          <>
+            <button className="angriff_button" onClick={handleAngriff}>
+              Angriff
+            </button>
+            <button
+              className="beenden_button"
+              onClick={() => weiterleitung("/charakterauswahl")}
+            >
+              Beenden
+            </button>
+          </>
+        )}
+
+        {gameOver && (
+          <div>
+            <p>Du wurdes besiegt!</p>
+            <button onClick={() => weiterleitung("/charakterauswahl")}>
+              Beenden
+            </button>
+            "<button onClick={handleNochmalSpielen}>Nochmal spielen</button>
+          </div>
+        )}
+
+        {gewonnen && (
+          <div>
+            <p>Gklückwunsch! Du hast den Boss besiegt!</p>
+            <button onClick={handleNochmalSpielen}>Nochmal spielen</button>
+            <button onClick={() => weiterleitung("/charakterauswahl")}>
+              Beenden
+            </button>
+          </div>
+        )}
+
+        {ausgabe && <div className="ausgabe">{ausgabe}</div>}
       </div>
     </div>
   );

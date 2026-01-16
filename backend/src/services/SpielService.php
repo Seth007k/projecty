@@ -137,16 +137,15 @@ function berechneGegnerSchaden($ergebnisAktuelleGegner, $ergebnisAktuellerCharak
 
 function charakterAktualisieren($datenbank, $spieler_id, $charakter)
 {
-    $sqlAnweisungAktualisiereCharakter = $datenbank->prepare("UPDATE charakter SET leben =?, angriff = ?, verteidigung = ?, level = ?, punkte = ? WHERE id = ? AND spieler_id =?");
+    $sqlAnweisungAktualisiereCharakter = $datenbank->prepare("UPDATE charakter SET leben =?, angriff = ?, verteidigung = ?, level = ? WHERE id = ? AND spieler_id =?");
 
     $leben = $charakter['leben'];
     $angriff = $charakter['angriff'];
     $verteidigung = $charakter['verteidigung'];
     $level = $charakter['level'];
-    $punkte = $charakter['punkte'];
     $charakter_id = $charakter['id'];
 
-    $sqlAnweisungAktualisiereCharakter->bind_param("iiiiiii", $leben, $angriff, $verteidigung, $level, $punkte, $charakter_id, $spieler_id);
+    $sqlAnweisungAktualisiereCharakter->bind_param("iiiiii", $leben, $angriff, $verteidigung, $level, $charakter_id, $spieler_id);
     $sqlAnweisungAktualisiereCharakter->execute();
     $sqlAnweisungAktualisiereCharakter->close();
 
@@ -217,7 +216,7 @@ function spielerAngriff($datenbank, $ergebnisAktuellesSpiel, $ergebnisAktuellerC
     if (empty($gegnerListe)) {
         $gegnerListe = erstelleGegner($ergebnisAktuellesSpiel['aktuelle_runde'], $ergebnisAktuellesSpiel['schwierigkeit']);
     }
-
+    
     //Spieler greift an
     $gegner = &$gegnerListe[0];
     $schadenSpieler = berechneSpielerSchaden($ergebnisAktuellerCharakter, $gegner);
@@ -243,6 +242,7 @@ function spielerAngriff($datenbank, $ergebnisAktuellesSpiel, $ergebnisAktuellerC
         $ergebnisAktuellesSpiel['aktuelle_runde'] += 1;
 
         $gegnerListe = erstelleGegner($ergebnisAktuellesSpiel['aktuelle_runde'], $ergebnisAktuellesSpiel['schwierigkeit']);
+        $ergebnisAktuellesSpiel['gegner_status'] = json_encode($gegnerListe);
         gegnerStatusSpeichern($datenbank, $ergebnisAktuellesSpiel['id'], $gegnerListe);
     }
 
@@ -253,6 +253,7 @@ function spielerAngriff($datenbank, $ergebnisAktuellesSpiel, $ergebnisAktuellerC
     return [
         'charakter' => $ergebnisAktuellerCharakter,
         'gegner_status' => json_encode($gegnerListe),
+        'gegner_liste' => $gegnerListe,
         'punkte' => $ergebnisAktuellesSpiel['punkte'],
         'aktuelle_runde' => $ergebnisAktuellesSpiel['aktuelle_runde'],
         'game_over' => false

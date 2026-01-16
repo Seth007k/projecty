@@ -35,7 +35,7 @@ CREATE TABLE `charakter` (
   `leben` int DEFAULT '100',
   `angriff` int DEFAULT '10',
   `verteidigung` int DEFAULT '5',
-  `bild` varchar(255) NOT NULL DEFAULT '/assets/charakter.png'
+  `bild` varchar(255) NOT NULL DEFAULT 'charakter.png'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------

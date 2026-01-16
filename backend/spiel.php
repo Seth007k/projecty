@@ -99,6 +99,7 @@ try {
                 $ergebnisAktuellesSpiel = $geladeneDaten['spiel'];
                 $ergebnisAktuellerCharakter = $geladeneDaten['charakter'];
                 $gegnerListe = isset($ergebnisAktuellesSpiel['gegner_status']) ? json_decode($ergebnisAktuellesSpiel['gegner_status'], true) : [];
+                if (!is_array($gegnerListe)) $gegnerListe = [];
             }
 
             switch ($benutzerAktion) {
@@ -114,13 +115,20 @@ try {
                 case 'spielerAngriff':
                     $ergebnisAktuelleGegner = null;
 
+                    if (!is_array($gegnerListe) || count($gegnerListe) === 0) {
+                        $antwort = $antwortErfolg;
+                        $antwort['ausgabe'] = "Keine Gegner vorhanden oder alle besiegt";
+                        $antwort['spiel'] = $ergebnisAktuellesSpiel;
+                        $antwort['gegner'] = $gegnerListe;
+                        echo json_encode($antwort);
+                        exit;
+                    }
                     foreach ($gegnerListe as &$gegner) {
                         if ($gegner['leben'] > 0) {
                             $ergebnisAktuelleGegner = &$gegner;
                             break;
                         }
                     }
-
                     unset($gegner);
 
                     if (!$ergebnisAktuelleGegner) {
@@ -132,6 +140,13 @@ try {
                         break;
                     }
 
+
+
+
+
+                    if (!$ergebnisAktuellerCharakter) {
+                        throw new Exception("Charakter konnte nicht geladen werden");
+                    }
 
                     $spielerSchaden = berechneSpielerSchaden($ergebnisAktuellerCharakter, $ergebnisAktuelleGegner);
                     $ergebnisAktuelleGegner['leben'] = max(0, $ergebnisAktuelleGegner['leben'] - $spielerSchaden);
@@ -222,6 +237,10 @@ try {
     }
 } catch (Exception $e) {
     http_response_code(500);
-    $antwort = $antwortServerFehler;
+    $antwort = [
+        'erfolg' => false,
+        'fehler' => $e->getMessage(),
+        'trace' => $e->getTraceAsString()
+    ];
 }
 echo json_encode($antwort);

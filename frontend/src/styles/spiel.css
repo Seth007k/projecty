@@ -2,41 +2,65 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
     background-image: url('../images/runde1.png');
     background-size: cover;
     background-position: center;
-    padding: 10px;
-}
-
-.spielfeld {
-    display: flex;
-    flex: 1;
-    justify-content: 20px;
     padding: 20px;
+    gap: 20px;
 }
 
-.charakter_info, .gegner_info {
-    background-color: rgba(0,0,0,0.5);
-    color: white;
+.kampffeld {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 75%;
+    max-width: 1200px;
+    gap: 30px;
+    padding-top: 150px;
+    padding-bottom: 20px;
+    height: 60vh;
+}
+
+.charakter{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding: 10px;
-    border-radius: 10px;
-    min-width: 200px;
+    border-radius: 12px;
+    color: white;
+    margin-top: 20px;
+    height: auto;
 }
 
 .charakter_bild {
-    width: 150px;
-    height: auto;
-    margin-bottom: 10px;
-}
-
-.gegner_bild {
-    width: 150px;
-    height: auto;
+    width: 200px !important;
+    height: auto !important;
     margin-bottom: 10px;
 }
 
 .gegner {
-    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    border-radius: 12px;
+    color: white;
+    margin-top:20px;
+    height: auto;
+}
+.gegner_bild {
+    width: 200px !important;
+    height: auto !important;
+    margin-bottom: 10px;
+    transform: scaleX(-1);
+}
+
+.gegner_liste {
+    display: flex;
+    gap: 20px;
+    align-items: center;
 }
 
 .action_bar {
@@ -68,4 +92,10 @@
     height: 100vh;
     color: white;
     font-size: 1.5rem;
+}
+.info p {
+    margin: 3px 0;
+}
+.info h3 {
+    margin: 5px 0;
 }
