@@ -1,6 +1,8 @@
 services:
   frontend:
-    build: ./frontend
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile.prod
     container_name: projecty_frontend_container
     ports:
       - "8082:80"
@@ -32,7 +34,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./backend/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./backend/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -46,6 +48,3 @@ services:
       PMA_PASSWORD: ${DB_ROOT_PASSWORD}
     depends_on:
       - projecty_datenbank
-
-volumes:
-  db_data:
