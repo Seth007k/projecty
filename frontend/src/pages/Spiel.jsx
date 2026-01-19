@@ -161,21 +161,25 @@ export default function Spiel() {
         </div>
 
         <div className="gegner_liste">
-          {gegnerListe.map((gegner, index) => (
-            <div key={index} className="gegner">
-              <img
-                src={`/assets/${gegner.bild || "gegner.png"}`}
-                alt={gegner.name}
-                className="gegner_bild"
-              />
-              <div className="info">
-                <h3>{gegner.name}</h3>
-                <p>Leben: {gegner.leben}</p>
-                <p>Angriff: {gegner.angriff}</p>
-                <p>Verteidigung: {gegner.verteidigung}</p>
+          {gegnerListe.map((gegner, index) => {
+            const istBoss = spiel.aktuelle_runde === 4 && gegner.leben > 0;
+            const bild = istBoss
+              ? "/assets/boss.png"
+              : `/assets/${gegner.bild || "gegner.png"}`;
+
+            return (
+              <div key={index} className="gegner">
+                <img src={bild} alt={gegner.name} className="gegner_bild" />
+                <div className="info">
+                  <h3>{gegner.name}</h3>
+                  <p>Leben: {gegner.leben}</p>
+                  <p>Angriff: {gegner.angriff}</p>
+                  <p>Verteidigung: {gegner.verteidigung}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
+          ;
         </div>
       </div>
       <div className="action_bar">
