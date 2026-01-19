@@ -80,7 +80,7 @@ export default function Spiel() {
       if (bossBesiegt) {
         setGewonnen(true);
       }
-      if (angriffDaten.charakter.leben <= 0) {
+      if (angriffDaten.spieler.leben <= 0) {
         setGameOver(true);
       }
     } catch (e) {
