@@ -198,14 +198,14 @@ function nochmalSpielen($datenbank, $spieler_id, $charakter_id, $ergebnisAktuell
     $sqlAnweisungLevelUp->execute();
 
     $neueSchwierigkeit = $ergebnisAktuellesSpiel['schwierigkeit'] + 1;
-    $neueRunde = $ergebnisAktuellesSpiel['aktuelle_runde'] ?? 1;
+    $neueRunde = 1;
  
 
-    $gegnerListe = erstelleGegner(1, $neueSchwierigkeit);
+    $gegnerListe = erstelleGegner($neueRunde, $neueSchwierigkeit);
     $gegnerAusJson = json_encode($gegnerListe);
 
     $sqlAnweisungSpielZuruecksetzen = $datenbank->prepare("UPDATE spiele SET aktuelle_runde = ?, schwierigkeit = ?, gespeichert_am = NOW(), gegner_status = ?, punkte = ? WHERE charakter_id = ? AND spieler_id = ? ");
-    $sqlAnweisungSpielZuruecksetzen->bind_param("isiii", $neueSchwierigkeit, $gegnerAusJson, $ergebnisAktuellesSpiel['punkte'], $charakter_id, $spieler_id);
+    $sqlAnweisungSpielZuruecksetzen->bind_param("isiiii", $neueRunde,$neueSchwierigkeit, $gegnerAusJson, $ergebnisAktuellesSpiel['punkte'], $charakter_id, $spieler_id);
     $sqlAnweisungSpielZuruecksetzen->execute();
 
     $sqlAnweisungLadeCharakter = $datenbank->prepare("SELECT * FROM charakter WHERE id =? AND spieler_id =?");
