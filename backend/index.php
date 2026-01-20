@@ -11,12 +11,15 @@ require_once __DIR__ . '/charakter.php';
 
 $eingabeDaten = json_decode(file_get_contents('php://input'), true) ?? [];
 
+//hier wird die URL geholt komplett
 $uri = $_SERVER['REQUEST_URI'];
-$uri = parse_url($uri, PHP_URL_PATH);
-$uri = str_replace('/index.php', '', $uri);
-$uri = trim($uri, '/');
+$uri = parse_url($uri, PHP_URL_PATH); // entfernt query parameter
+$uri = str_replace('/index.php', '', $uri); // entfernt index aus der URL
+$uri = trim($uri, '/'); // entfernt /
 
+//try catch für exceptions
 try {
+    //entscheidt anhand der URL welche Datei geladen wird
     switch($uri) {
         case 'auth':
             require_once __DIR__ . '/auth.php';
@@ -36,7 +39,4 @@ try {
     http_response_code(500);
     $antwort = ['erfolg' => false, 'fehler' => 'Serverfehler!', 'debug' => $e->getMessage()];
 }
-
-
-
 ?>

@@ -5,16 +5,16 @@ import "../styles/menue.css";
 
 export default function Menue() {
   const weiterleitung = useNavigate();
-
   const [benutzername, setBenutzername] = useState('');
   const [passwort, setPasswort] = useState('');
 
   //Login
-  const handleLogin = async (e) => {
+  const handleLogin = async (e) => { // benutze ich als eventhandler bei cklick auf login (async= in dieser funktion darf ich await nutzen, gibt promise zurück),e = eventobject von onSubmit oder onclick,e.preventdefault verhindert standartverhalten vom browser
+    //heisst: bei <form> zb würde browser seite neu laden, request abschicken was ich aber in react nicht brauche 
     e.preventDefault();
     const loginDaten = await login(benutzername, passwort);
 
-    if (loginDaten.erfolg) {
+    if (loginDaten.erfolg) { // hat server akzeptiert? 
       weiterleitung("/charakterauswahl");
     } else {
       alert(loginDaten.fehler);
@@ -63,7 +63,7 @@ export default function Menue() {
             placeholder="Passwort eingeben"
             id="password"
             value={passwort}
-            onChange={(e) => setPasswort(e.target.value)}
+            onChange={(e) => setPasswort(e.target.value)} //onChange wird jedesmal ausgeführt wenn sich wert des inputs ändert; jeder tastendruck, jedes löschenoder einfügen in den klammern {} steht js, e = eventobject von react e.target = html element welches event asugelöst hat  <input>
             required
           ></input>
           <button type="submit" className="menue_button" onClick={handleLogin}>

@@ -1,11 +1,12 @@
-import React from 'react';
-import {useNavigate} from 'react-router-dom';
+import React from 'react'; // brauch für damit <main> zb verstanden wird
+import {useNavigate} from 'react-router-dom'; // hook
 import '../styles/menue.css';
-import Menuebildschirm from '../images/Menuebildschirm.png';
+import Menuebildschirm from '../images/Menuebildschirm.png'; //bildimport
 
 export default function Menue() {
-    const weiterleitung = useNavigate();
+    const weiterleitung = useNavigate(); // weiterleitung
 
+    //aufbau der seite menü mit bild und login bzw registrierungs buttons
     return (
         <main className='login_menue_hintergrund_container'style={{
                 backgroundImage: `url(${Menuebildschirm})`,
