@@ -6,7 +6,7 @@ import Charakterauswahl from "./pages/Charakterauswahl";
 import Spiel from "./pages/Spiel";
 
 
-function App() {
+function App() { // URL ändert sich- router erkennt änderung- passende route- komponente wird neu gerendert- kein reload, kein neues html nur react re render
   return (
     <Router>
       <Routes>
