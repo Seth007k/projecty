@@ -7,6 +7,8 @@ header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS");
 //Erlaubt Header den Content-type zb application/json
 header("Access-Control-Allow-Headers: Content-Type");
+//Jede Antwort ist JSON Format, brauch ich für frontend
+header('Content-Type: application/json');
 
 //Abfangen der OPTIONS REQUEST, diese prüft ob CORS erlaubt sind und wird oft vor POST etc geschickt, antwort ok -> 200 dann wird script beendet
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -36,8 +38,7 @@ if (!$spieler_id) {
     exit;
 }
 
-//Jede Antwort ist JSON Format, brauch ich für frontend
-header('Content-Type: application/json');
+
 
 //REQUEST_METHOD wird in methode gespeichert
 $methode = $_SERVER['REQUEST_METHOD'];

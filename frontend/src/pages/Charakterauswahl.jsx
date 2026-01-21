@@ -109,7 +109,7 @@ export default function Charakterauswahl() {
                 <li key={c.id} className={`charakter_status ${charakter?.id === c.id ? "aktiv" : ""}`} onClick={() => setCharakter(c)}> {/* ist dieser charakter der ausgewählöte charakter? + arrow funktion wird erst beim klick ausgeführt daher onClick={() => setCharakter(c)}*/}
                   <div className="charakter_bild_wrapper"> {/* jeder li bekommt eigene id (key) bein redner, und beim klciken: setCharrakter = setzt aktiven charakter, charakter id ändert sich , react rendert neu, nur dieses li bekommt aktiv, UI kann aktiven Char anzeigen*/}
                   <img
-                    src={`/assets/${charakter.bild || "charakter.png"}`}
+                    src={`/assets/${c.bild || "charakter.png"}`}
                     alt={c.name}
                     className="charakter_bild"
                   />
@@ -126,7 +126,7 @@ export default function Charakterauswahl() {
               ))}
             </ul>
 
-            <div>
+            <div className="charakter_button_container">
               <button
                 className="charakter_button"
                 onClick={handleWeiterspielen}
@@ -147,7 +147,10 @@ export default function Charakterauswahl() {
           <p>Noch kein Charakter vorhanden</p> 
         )} {/*Falls keine charakter existieren fallback ausgabe */}
 
-        <div>
+        <div className="charakter_erstellen_container">
+
+          {charaktere.length > 0 && <p>Du kannst weitere Charaktere erstellen</p>}
+
           <input name="charName_input"
             type="text"
             value={name}

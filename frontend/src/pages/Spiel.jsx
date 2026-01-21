@@ -58,30 +58,43 @@ export default function Spiel() {
   }, [charakterId, spielerId]);
 
   const handleAngriff = async () => {
-    if (!spiel || gameOver || !charakter || gegnerListe.length === 0) return;
+    if (!spiel || gameOver || !charakter) return;
 
     try {
       const angriffDaten = await spielerAngriff(spiel.id, charakterId);
 
-      setGegnerListe(angriffDaten.gegner || []);
-      setCharakter(angriffDaten.spieler || charakter);
-      setSpiel({
-        ...spiel,
-        aktuelle_runde: angriffDaten.spiel.aktuelle_runde,
-        punkte: angriffDaten.spiel.punkte,
-      });
-
-      setAusgabe(angriffDaten.ausgabe || "");
-
-      const bossBesiegt =
-        angriffDaten.gegner.every((g) => g.leben === 0) &&
-        angriffDaten.spiel.aktuelle_runde === 4;
-
-      if (bossBesiegt) {
-        setGewonnen(true);
+      if (angriffDaten.gegner) {
+        setGegnerListe(angriffDaten.gegner);
       }
-      if (angriffDaten.spieler.leben <= 0) {
+
+      let neueAusgabe = angriffDaten.ausgabe || "";
+
+      if (angriffDaten.spieler) {
+        setCharakter(angriffDaten.spieler);
+        if (angriffDaten.spieler.leben <= 0) {
+          setGameOver(true);
+          setAusgabe((angriffDaten.ausgabe || "") + "\nDu wurdest besiegt!");
+        }
+      } else {
         setGameOver(true);
+        neueAusgabe = "Dein Charakter wurde besiegt! Erstelle einen neuen und versuche deinen Highscore zu knacken!";
+      }
+      
+      setAusgabe(neueAusgabe);
+
+      if (angriffDaten.spiel) {
+        setSpiel({
+          ...spiel,
+          aktuelle_runde: angriffDaten.spiel.aktuelle_runde,
+          punkte: angriffDaten.spiel.punkte,
+        });
+      }
+
+      if (angriffDaten.spiel && angriffDaten.gegner) {
+        const alleGegnerTot = angriffDaten.gegner.every((g) => g.leben <= 0);
+        if (alleGegnerTot && angriffDaten.spiel.aktuelle_runde === 4) {
+          setGewonnen(true);
+        }
       }
     } catch (e) {
       console.error("Fehler beim Angriff:", e);
@@ -95,7 +108,7 @@ export default function Spiel() {
       const nochmalSpielenDaten = await nochmalSpielenService(
         spielerId,
         charakterId,
-        spiel.id
+        spiel.id,
       );
 
       setCharakter(nochmalSpielenDaten.charakter);
@@ -119,29 +132,6 @@ export default function Spiel() {
     return <div className="loading"> Charakter oder Spiel nicht gefunden!</div>;
   }
 
-  if (gameOver) {
-    return (
-      <div className="spiel_container">
-        <h2> Verloren!</h2>
-        <button onClick={() => weiterleitung("/charakterauswahl")}>
-          Beenden
-        </button>
-      </div>
-    );
-  }
-
-  if (gewonnen) {
-    return (
-      <div className="spiel_container">
-        <h2>Gewonnen!</h2>
-        <button onClick={handleNochmalSpielen}>Nochmal spielen!</button>
-        <button onClick={() => weiterleitung("/charakterauswahl")}>
-          Beenden
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className="spiel_container">
       <div className="kampffeld">
@@ -162,14 +152,18 @@ export default function Spiel() {
 
         <div className="gegner_liste">
           {gegnerListe.map((gegner, index) => {
-            const istBoss = spiel.aktuelle_runde === 4 && gegner.leben > 0;
+            const istBoss = gegner.name.toLowerCase().includes("boss");
             const bild = istBoss
               ? "/assets/boss.png"
               : `/assets/${gegner.bild || "gegner.png"}`;
 
             return (
               <div key={index} className="gegner">
-                <img src={bild} alt={gegner.name} className="gegner_bild" />
+                <img
+                  src={bild}
+                  alt={gegner.name}
+                  className={`gegner_bild ${istBoss ? "boss_bild" : ""}`}
+                />
                 <div className="info">
                   <h3>{gegner.name}</h3>
                   <p>Leben: {gegner.leben}</p>
@@ -182,9 +176,10 @@ export default function Spiel() {
           ;
         </div>
       </div>
+
       <div className="action_bar">
         {!gameOver && !gewonnen && (
-          <>
+          <div className="action_buttons">
             <button className="angriff_button" onClick={handleAngriff}>
               Angriff
             </button>
@@ -194,16 +189,16 @@ export default function Spiel() {
             >
               Beenden
             </button>
-          </>
+          </div>
         )}
 
         {gameOver && (
-          <div>
-            <p>Du wurdes besiegt!</p>
+          <div className="game_over_container">
+            <p>Du wurdest besiegt!</p>
             <button onClick={() => weiterleitung("/charakterauswahl")}>
-              Beenden
+              Zur Charakterauswahl
             </button>
-            "<button onClick={handleNochmalSpielen}>Nochmal spielen</button>
+            <button onClick={handleNochmalSpielen}>Nochmal spielen</button>
           </div>
         )}
 
@@ -217,7 +212,11 @@ export default function Spiel() {
           </div>
         )}
 
+        
+
         {ausgabe && <div className="ausgabe">{ausgabe}</div>}
+
+        
       </div>
     </div>
   );

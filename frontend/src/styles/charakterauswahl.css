@@ -30,6 +30,25 @@ html, body {
     box-sizing: border-box;
 }
 
+.charakter_erstellen_container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.charakter_button_container {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.charakter_erstellen_container p {
+    margin-bottom: 20px;
+}
+
 .charakter_button {
     display: inline-block;
     outline: none;
@@ -53,6 +72,7 @@ html, body {
     user-select: none;
     font-family: Arial, Helvetica, sans-serif;
     font-weight: bold;
+    min-width: 220px;
 }
 
 .charakter_button:hover {
