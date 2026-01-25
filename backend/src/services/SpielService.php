@@ -158,7 +158,7 @@ function berechneGegnerSchaden($ergebnisAktuelleGegner, $ergebnisAktuellerCharak
     }
 }
 
-//Updated den charakter bzw speichert aktuelle werte in der DB, rückgabewert gibt zurück ob etwas geändert wurde
+//Updated den charakter bzw speichert aktuelle werte in der DB, rückgabewert gibt zurück ob etwas geändert wurde   !!! MUSS eigentlich bei charakterservice rein!!!!
 function charakterAktualisieren($datenbank, $spieler_id, $charakter)
 {
     $sqlAnweisungAktualisiereCharakter = $datenbank->prepare("UPDATE charakter SET leben =?, angriff = ?, verteidigung = ?, level = ? WHERE id = ? AND spieler_id =?");

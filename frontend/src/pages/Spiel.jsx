@@ -54,6 +54,8 @@ export default function Spiel() {
     };
   }, [charakterId, spielerId, weiterleitung]);
 
+
+  //nach jedem angriff neue spielstand vom backend uznd dann aktualisiere im frontend nur die sachen die sichg geädnert haben.
   const handleAngriff = async () => {
     if (!spiel || gameOver || !charakter) return;
 
@@ -69,12 +71,12 @@ export default function Spiel() {
       }
 
       if(angriffDaten.spiel) {
-        setSpiel((prev) => ({
+        setSpiel((prev) => ({ // ich überschreibe nicht das komplette game sondern nur dfelder aus dem backend, lokale Daten gehen nicht verloren
           ...prev,
           ...angriffDaten.spiel,
         }));
       }
-
+      //textausgabe wenn text existiert bnzw gesetz ist
       if(angriffDaten.ausgabe) {
         setAusgabe(angriffDaten.ausgabe);
       }

@@ -51,7 +51,7 @@ try {
             break;
 
             //bei DELETE wird erst die aktuelle session geprüft dann mit session unset werden alle sessino variablen gelöscht und dann wird die session gekillt + meldung logout erfolgreich
-        case 'DELETE':
+        case 'DELETE': // omg ich hab kein logout button :( muss noch hinzugefügt werden)
             requireAuth();
             session_unset();
             session_destroy();
