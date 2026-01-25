@@ -67,7 +67,7 @@ try {
     //switch case um die methoden zu sortieren bzw darauf zu reagieren
     switch ($methode) {
 
-    //Falls GET: Spielstatus wird abgerufen charakter ID wird aus URL geholt
+        //Falls GET: Spielstatus wird abgerufen charakter ID wird aus URL geholt
         case 'GET':
             $charakterId = $_GET['charakter_id'] ?? null;
 
@@ -88,11 +88,15 @@ try {
             $aktuellesSpiel = $geladeneDaten['spiel'];
             //gegnerdaten werden in gegnerListe gespeichert, es wird geprüft ob gegner_status true ist und ob gegnerstatus nicht null ist, wenn true dann baue ein array aus den json daten, danach kommt die antwort als json
             $gegnerListe = isset($aktuellesSpiel['gegner_status']) && $aktuellesSpiel['gegner_status'] !== null ? json_decode($aktuellesSpiel['gegner_status'], true) : [];
-            $antwort = $antwortErfolg;
-            $antwort['spiel'] = $aktuellesSpiel;
-            $antwort['gegner'] = $gegnerListe;
+            $antwort = [
+                'erfolg' => true,
+                'ausgabe' => "Spiel geladen",
+                'spiel' => $aktuellesSpiel,
+                'charakter' => $geladeneDaten['charakter'],
+                'gegner' => $gegnerListe
+            ];
             break;
-            //Fall POST: post wird für aktionen benutzt. Dabei muss die charakter id und die jeweilige action gespeichert werden und auch wirklich gesetzt sein (if prüfung) ansonsten fehler.
+        //Fall POST: post wird für aktionen benutzt. Dabei muss die charakter id und die jeweilige action gespeichert werden und auch wirklich gesetzt sein (if prüfung) ansonsten fehler.
         case 'POST':
             $charakter_id = $eingabedaten['charakter_id'] ?? null;
             $benutzerAktion = $eingabedaten['action'] ?? null;
@@ -118,15 +122,26 @@ try {
                 $gegnerListe = isset($ergebnisAktuellesSpiel['gegner_status']) ? json_decode($ergebnisAktuellesSpiel['gegner_status'], true) : [];
                 //Sicherheitsprüfung, falls json_ddecode kein array geliefert hat: gegnerliste auf leer setzen um spätere fehle in foreach zu vermeiden
                 if (!is_array($gegnerListe)) $gegnerListe = [];
-            }
+            } 
             //die eigentliche benutzeraktion wird hier selektiert
             switch ($benutzerAktion) {
                 case 'ladeSpiel':
                     $geladeneDaten = ladeSpielUndCharakter($datenbank, $spieler_id, $charakter_id);
                     if (isset($geladeneDaten['error'])) {
-                        $antwort = $geladeneDaten['error'];
+                        $antwort = [
+                            'erfolg' => false,
+                            'ausgabe' => $geladeneDaten['error']
+                        ];
                     } else {
-                        $antwort = ['erfolg' => true, 'spiel' => $geladeneDaten['spiel'], 'charakter' => $geladeneDaten['charakter']];
+                        $gegnerListe = isset($geladeneDaten['spiel']['gegner_status']) ? json_decode($geladeneDaten['spiel']['gegner_status'], true) : [];
+                        if (!is_array($gegnerListe)) $gegnerListe = [];
+                        $antwort = [
+                            'erfolg' => true,
+                            'ausgabe' => "Spiel geladen",
+                            'spiel' => $geladeneDaten['spiel'],
+                            'charakter' => $geladeneDaten['charakter'],
+                            'gegner' => $gegnerListe
+                        ];
                     }
                     echo json_encode($antwort);
                     exit;
@@ -218,7 +233,7 @@ try {
                     //wenn alle gegner besiegt wurden, dann wird gerpfüt ob runde 4 erreicht wurde und wenn das der fall ist, dann kommt ausgabe mit boss besiegt und nochmal spielen
                     if ($gegnerBesiegt) {
                         if ($ergebnisAktuellesSpiel['aktuelle_runde'] >= 4) {
-                            $ausgabeNachAngriff .= "Du hast die Faulheit besiegt! Glückwunsch! Punkte: {$ergebnisAktuellesSpiel['punkte']} ! Drücke 'nochmal_spielen' um aufzuleveln und die nächste Runde zu starten!";
+                            $ausgabeNachAngriff .= "Glückwunsch! Gesamtpunkte: {$ergebnisAktuellesSpiel['punkte']} ! Drücke 'nochmal_spielen' um aufzuleveln und die nächste Runde zu starten!";
                         } else {
                             //wenn runde 4 noch nicht erreicht dann zähle runde hoch speicher das aktuelle spiel, erstelle für neue runde neue gegner nach runden anzahl, speichere gegner in generliste und gib ausgabe aus
                             $ergebnisAktuellesSpiel['aktuelle_runde']++;
@@ -246,28 +261,29 @@ try {
                     ];
                     $antwort['gegner'] = $gegnerListe;
                     break;
-        //fall nochmal spielen: kommt wenn boss besiegt wurde, aktuellespiel wird überschrieben mit funktion nochmal spielen welche spiel zurücksetzt schwierigkeit erhöht etc
-        case 'nochmal_spielen':
+                //fall nochmal spielen: kommt wenn boss besiegt wurde, aktuellespiel wird überschrieben mit funktion nochmal spielen welche spiel zurücksetzt schwierigkeit erhöht etc
+                case 'nochmal_spielen':
                     $ergebnisNochmalSpielen = nochmalSpielen($datenbank, $spieler_id, $charakter_id, $ergebnisAktuellesSpiel);
                     //lädt den charakter frishc aus der DB zwecks lvl up bzw veränderungen nach gewonnener runde, falls array leer ensteht fehler der danach mit if behandlet wird
-                    $neuerCharakter = charakterLaden($datenbank, $spieler_id, $charakter_id)[0];
+                    $aktualisierterCharakter = charakterLaden($datenbank, $spieler_id, $charakter_id)[0];
                     //wenn kein charakter geladen wurde , ergebnis leer oder null dann wirf exception und springt sofort in catch block da ohne charakter kein spiel
-                    if (empty($neuerCharakter)) {
+                    if (empty($aktualisierterCharakter)) {
                         throw new Exception('Charakter konnte nicht geladen werden...');
                     }
 
                     //antwort ausgabe
                     $antwort = [
+                        'erfolg' => true,
+                        'ausgabe' => $ergebnisNochmalSpielen['hinweis'],
                         'schwierigkeit' => $ergebnisNochmalSpielen['schwierigkeit'],
                         'gegner' => $ergebnisNochmalSpielen['gegner'],
                         'runde' => $ergebnisAktuellesSpiel['aktuelle_runde'],
-                        'charakter' => $neuerCharakter,
-                        'hinweis' => $ergebnisNochmalSpielen['hinweis']
+                        'charakter' => $aktualisierterCharakter
                     ];
                     //header setzen
-                   header('Content-Type: application/json');
-                   echo json_encode($antwort);
-                   exit;       
+                    header('Content-Type: application/json');
+                    echo json_encode($antwort);
+                    exit;
                 default: // wenn action kein bekannter fall dann fehler
                     http_response_code(400);
                     $antwort = $antwortMethodenFehler;
