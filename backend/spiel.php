@@ -208,9 +208,15 @@ try {
 
                     //es wird geprüft ob der charakter noch leben hat wenn 0 oder weniger dann funktion spielerbesiegt und ausgabe
                     if ($ergebnisAktuellerCharakter['leben'] <= 0) {
-                        $antwort = spielerBesiegt($datenbank, $spieler_id, $charakter_id, $ergebnisAktuellerCharakter, $ergebnisAktuellesSpiel);
-                        $antwort['ausgabe'] = $ausgabeNachAngriff;
-                        break;
+                        $antwort =[
+                            'erfolg' => false,
+                            'game_over' => true,
+                            'ausgabe' => "Dein Charakter {$ergebnisAktuellerCharakter['name']} wurde von {$ergebnisAktuelleGegner['name']} besiegt!",
+                            'spieler' => $ergebnisAktuellerCharakter,
+                            'gegner' => $gegnerListe,
+                        ];
+                        echo json_encode($antwort);
+                        exit;
                     }
 
                     //der zustand des charakter wird gespeichert
@@ -233,7 +239,7 @@ try {
                     //wenn alle gegner besiegt wurden, dann wird gerpfüt ob runde 4 erreicht wurde und wenn das der fall ist, dann kommt ausgabe mit boss besiegt und nochmal spielen
                     if ($gegnerBesiegt) {
                         if ($ergebnisAktuellesSpiel['aktuelle_runde'] >= 4) {
-                            $ausgabeNachAngriff .= "Glückwunsch! Gesamtpunkte: {$ergebnisAktuellesSpiel['punkte']} ! Drücke 'nochmal_spielen' um aufzuleveln und die nächste Runde zu starten!";
+                            $ausgabeNachAngriff .= "Glückwunsch! Gesamtpunkte: {$ergebnisAktuellesSpiel['punkte']} ! Drücke: Nochmal spielen für eine neue Runde!";
                         } else {
                             //wenn runde 4 noch nicht erreicht dann zähle runde hoch speicher das aktuelle spiel, erstelle für neue runde neue gegner nach runden anzahl, speichere gegner in generliste und gib ausgabe aus
                             $ergebnisAktuellesSpiel['aktuelle_runde']++;

@@ -60,23 +60,32 @@ export default function Spiel() {
     try {
       const angriffDaten = await spielerAngriff(spiel.id, charakterId);
 
-      setCharakter(angriffDaten.spieler || charakter);
-      setSpiel({
-          ...spiel,
-          aktuelle_runde: angriffDaten.spiel?.aktuelle_runde || spiel.aktuelle_runde,
-          punkte: angriffDaten.spiel?.punkte || spiel.punkte,
-          schwierigkeit: angriffDaten.spiel?.schwierigkeit || spiel.schwierigkeit,
-        });
-        setGegnerListe(angriffDaten.gegner || []);
-        setAusgabe(angriffDaten.ausgabe || "");
+      if(angriffDaten.spieler){
+        setCharakter(angriffDaten.spieler);
+      }
 
-        if(angriffDaten.spieler?.leben <= 0) {
-          setGameOver(true);
-        }
+      if(Array.isArray(angriffDaten.gegner)) {
+        setGegnerListe(angriffDaten.gegner);
+      }
 
-        if(angriffDaten.gegner && angriffDaten.gegner.every((g) => g.leben <= 0) && angriffDaten.spiel?.aktuelle_runde === 4) {
-          setGewonnen(true);
-        }
+      if(angriffDaten.spiel) {
+        setSpiel((prev) => ({
+          ...prev,
+          ...angriffDaten.spiel,
+        }));
+      }
+
+      if(angriffDaten.ausgabe) {
+        setAusgabe(angriffDaten.ausgabe);
+      }
+      if(angriffDaten.gameOver === true || angriffDaten.spieler?.leben <= 0){
+        setGameOver(true);
+      }
+
+      if(angriffDaten.gegner && angriffDaten.gegner.every((g) => g.leben <= 0) && angriffDaten.spiel?.aktuelle_runde === 4) {
+        setGewonnen(true);
+      }
+      
     } catch(e) {
       console.error("Feheler beim Angriff:".e);
     }
@@ -181,7 +190,6 @@ export default function Spiel() {
             <button className="button" onClick={() => weiterleitung("/charakterauswahl")}>
               Zur Charakterauswahl
             </button>
-            <button className="button" onClick={handleNochmalSpielen}>Nochmal spielen</button>
           </div>
         )}
 
