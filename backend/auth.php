@@ -4,7 +4,7 @@ header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: POST, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { // preflieght ist kein echter request sondern nur eine anfrage vonw egen: darf ich? dann antwort.
     http_response_code(200);
     exit();
 }
@@ -18,7 +18,7 @@ require_once __DIR__ . '/src/middleware/AuthMiddleWare.php';
 require_once __DIR__ . '/src/services/Database.php';
 require_once __DIR__ . '/src/services/AuthService.php';
 
-header('Content-Type: application/json');
+header('Content-Type: application/json'); //obere header sind zugriffsregeln dieser header  sagt dem client das was jetzt kommt ist JSON
 
 $methode = $_SERVER['REQUEST_METHOD'];
 $anwortUserDaten =  file_get_contents('php://input');

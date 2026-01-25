@@ -8,7 +8,7 @@ function getDB()
         return $verbindung;
     }
 
-    $config = require __DIR__ . '/../../config/env.php'; // lädt env.php und speichert in $env ;
+    $config = require __DIR__ . '/../../config/env.php'; // lädt env.php und speichert in $config ;
 
 
     $verbindung = new mysqli( //new msyqli(..) = verbindung php mit mysql DB_HOST etc aus env
@@ -26,8 +26,6 @@ function getDB()
         exit;
     }
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-
-
 
     return $verbindung;
 }

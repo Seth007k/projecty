@@ -85,7 +85,7 @@ function loginDatenVorhanden($benutzername, $passwort)
         throw new Exception('Es wird ein benutzername und Passwort benötigt!');
     }
 }
-//rückgabetyp: integer, prüft erst die eingaben ob vorhanden und erstellt dann den benutzer welche in benutzer_id gespeichert wird da rückgabewert aus registriereBenutzer ID ist. benutzerId wird in session benutzerID gespeichert -> eingeloggt und dann wird benutzerId zurückgegeben 
+//rückgabetyp: integer ( function darfd nur int zurückgeben sonst fatal error, wird während laufzeit von php geprüft), prüft erst die eingaben ob vorhanden und erstellt dann den benutzer welche in benutzer_id gespeichert wird da rückgabewert aus registriereBenutzer ID ist. benutzerId wird in session benutzerID gespeichert -> eingeloggt und dann wird benutzerId zurückgegeben 
 function registriereUndEinloggen($datenbank, $eingabeDaten):int {
     loginDatenVorhanden($eingabeDaten['benutzername'], $eingabeDaten['passwort']);
 
@@ -96,7 +96,7 @@ function registriereUndEinloggen($datenbank, $eingabeDaten):int {
     return $benutzer_id;
 }
 
-//auch rückgabewert: integer gibt benutzerid zurück, holt erst benutzername aus eingabedaten und speichert in benutzername selbe mit pw dann wird geprüft ob daten vorhanden sind dann ob benutzer existiert und dann wird der aktuelle benutzer aus DB geladen und in aktuellerUser gespeichert welche ich brauche um 
+//auch rückgabewert: integer, gibt benutzerid zurück, holt erst benutzername aus eingabedaten und speichert in benutzername selbe mit pw dann wird geprüft ob daten vorhanden sind dann ob benutzer existiert und dann wird der aktuelle benutzer aus DB geladen und in aktuellerUser gespeichert welche ich brauche um 
 //pwdie passwort eingabe zu validieren. Dann wird der aktuelleUser in SESSION benutzerID gespeichert und die ID zurückgegeben
 function loginBenutzer($datenbank, $eingabeDaten):int {
     $benutzername = $eingabeDaten['benutzername'] ?? '';
@@ -106,7 +106,6 @@ function loginBenutzer($datenbank, $eingabeDaten):int {
     if(!existiertBenutzer($datenbank,$benutzername)){
         throw new Exception('Benutzer existiert nicht', 404);
     };
-
 
     $aktuellerUser = ladeBenutzer($datenbank, $eingabeDaten['benutzername']);
     pruefePasswort($aktuellerUser, $eingabeDaten['passwort']);

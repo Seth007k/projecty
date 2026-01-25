@@ -57,7 +57,7 @@ function ladeAltenSpielstand($datenbank, $spieler_id, $charakter_id)
         $sqlAnweisungAktualisiereGegner->bind_param("si", $gegnerAusJson, $ergebnisAktuellesSpiel['id']);
         $sqlAnweisungAktualisiereGegner->execute();
     }
-    //stellt sicher dass ich immer den aktuellen stand im aktuellem spiel habe, dann return
+    //stellt sicher dass ich immer den aktuellen stand der gegner   im aktuellem spiel habe, dann return
     $ergebnisAktuellesSpiel['gegner_status'] = json_encode($gegnerListe);
     return $ergebnisAktuellesSpiel;
 }

@@ -37,6 +37,6 @@ try {
     }
 } catch (Exception $e) {
     http_response_code(500);
-    $antwort = ['erfolg' => false, 'fehler' => 'Serverfehler!', 'debug' => $e->getMessage()];
+    $antwort = ['erfolg' => false, 'fehler' => 'URL fehler!', 'debug' => $e->getMessage()];
 }
 ?>
