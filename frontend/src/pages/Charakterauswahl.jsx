@@ -14,9 +14,9 @@ export default function Charakterauswahl() {
   const [charakter, setCharakter] = useState(null);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
-  const spielerId = localStorage.getItem("benutzer_id"); // holt eingeloggten user aus localStorge für navigation
+  const spielerId = localStorage.getItem("benutzer_id"); // holt eingeloggten user aus localStorge für navigation; unsafe prüfen
 
-  const ladeCharakter = async () => { // asynchrone funktion zu malden des charakters 
+  const ladeCharakter = async () => { // asynchrone funktion zum laden des charakters 
     try {
       const charakterDaten = await ladeCharaktere(); // API aufruf ladeCharaktere, await = warte auf ergebnis
       if (charakterDaten.erfolg) { //prüft ob API call erfolgreich war
@@ -52,7 +52,7 @@ export default function Charakterauswahl() {
         alert(neuerCharakter.fehler);
       }
     } catch (e) {
-      console.error("Fehler beim Erstellen:", e);
+      console.error("Fehler beim Erstellen:", e); 
     }
   };
 
@@ -74,7 +74,7 @@ export default function Charakterauswahl() {
   //pürft ob ein charakter ausgerwählt wurde, wenn ja bist du sicher? abfrage
   const handleCharakterLoeschen = async () => {
     if (!charakter) return;
-    const bestaetigung = window.confirm(
+    const bestaetigung = window.confirm( // besser eigenes popup
       `Willst du den Charakter wirklich löschen?`
     );
     if (!bestaetigung) return;

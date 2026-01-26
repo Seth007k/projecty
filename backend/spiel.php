@@ -67,7 +67,7 @@ try {
     //switch case um die methoden zu sortieren bzw darauf zu reagieren
     switch ($methode) {
 
-        //Falls GET: Spielstatus wird abgerufen charakter ID wird aus URL geholt
+        //Fall GET: Spielstatus wird abgerufen charakter ID wird aus URL geholt
         case 'GET':
             $charakterId = $_GET['charakter_id'] ?? null;
 
@@ -86,7 +86,7 @@ try {
             }
             //wenn "spiel" daten geladen wurden werden sie in aktuellesSpiel gespeichert
             $aktuellesSpiel = $geladeneDaten['spiel'];
-            //gegnerdaten werden in gegnerListe gespeichert, es wird geprüft ob gegner_status true ist und ob gegnerstatus nicht null ist, wenn true dann baue ein array aus den json daten, danach kommt die antwort als json
+            //gegnerdaten werden in gegnerListe gespeichert, es wird geprüft ob gegner_status true ist und ob gegnerstatus nicht null ist, wenn true dann baue ein array aus den json daten anosnsten leeres json, danach kommt die antwort als json
             $gegnerListe = isset($aktuellesSpiel['gegner_status']) && $aktuellesSpiel['gegner_status'] !== null ? json_decode($aktuellesSpiel['gegner_status'], true) : [];
             $antwort = [
                 'erfolg' => true,
@@ -109,7 +109,7 @@ try {
             //ich brauche den aktuellen spielstand um kamfpaktionen durchzuführen, wird in geladeneDaten egspeichert, prüft vorher ob aktuelle aktion NICHT ladeSpiel ist. ladeSpiel lädt nur Daten welche ich für zb spielerAngriff brauche(speilstand muss vorhanden sein)
             if ($benutzerAktion !== 'ladeSpiel') {
                 $geladeneDaten = ladeSpielUndCharakter($datenbank, $spieler_id, $charakter_id);
-                //prüft ob meine funktion error geworden hat wenn ja, dann fehlercode 400, inhaltlich falsch - syntaktisch korrkt
+                //prüft ob meine funktion error geworfen hat wenn ja, dann fehlercode 400
                 if (isset($geladeneDaten['error'])) {
                     http_response_code(400);
                     $antwort = ['erfolg' => false, 'fehler' => $geladeneDaten['error']];

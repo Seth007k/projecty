@@ -14,7 +14,7 @@ export async function login(benutzername, passwort) {
   try {
     return await response.json();
   } catch (e) {
-    throw new Error("Backendhatkeinjsongeliefert");
+    throw new Error("Backend hat kein json geliefert");
   }
 }
 
