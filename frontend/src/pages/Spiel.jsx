@@ -24,7 +24,7 @@ export default function Spiel() {
       return;
     }
 
-    let abgebrochen = false;
+    let abgebrochen = false; // schutzflag für prüfung ob componenten existieren und !abgebrochen dann darf ich setState benutzen
 
     const ladeSpiel = async () => {
       setLoading(true);
@@ -55,7 +55,7 @@ export default function Spiel() {
   }, [charakterId, spielerId, weiterleitung]);
 
 
-  //nach jedem angriff neue spielstand vom backend uznd dann aktualisiere im frontend nur die sachen die sichg geädnert haben.
+  //nach jedem angriff neue spielstand vom backend uznd dann aktualisiere im frontend nur die dinge die sichg geädnert haben.
   const handleAngriff = async () => {
     if (!spiel || gameOver || !charakter) return;
 

@@ -1,14 +1,9 @@
-body {
+html, body {
     margin: 0;
     padding: 0;
-    height: 100%;
+    min-height: 100svh;
     font-family: Arial, sans-serif;
     background-color: transparent;
+    overflow-x: hidden;
 }
-html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: Arial, sans-serif;
-    background-color: transparent;
-}
+

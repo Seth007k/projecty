@@ -67,7 +67,7 @@ try {
     //catch für fehler
 } catch (Exception $e) {
     http_response_code(500);
-    $error_msg = $e->getMessage();
+    $error_msg = $e->getMessage(); //debugging
     $error_trc = $e->getTraceAsString();
     echo json_encode(['erfolg' => false, 'fehler' => $error_msg, 'trace' => $error_trc]);
 }
