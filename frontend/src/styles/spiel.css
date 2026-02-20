@@ -14,10 +14,10 @@
 .kampffeld {
     display: flex;
     justify-content: center;
-    align-items: flex-end;
+    align-items: flex-start;
     width: 75%;
     gap: 120px;
-    padding-top: 20px;
+    padding-top: 60px;
     padding-bottom: 0;
     max-height: 60vh;
 }
